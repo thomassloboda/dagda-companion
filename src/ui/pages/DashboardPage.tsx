@@ -58,7 +58,7 @@ export function DashboardPage() {
   // modals / inputs
   const [noteInput, setNoteInput] = useState("");
   const [customInput, setCustomInput] = useState("");
-  const [chapterInput, setChapterInput] = useState(1);
+  const [pendingChapter, setPendingChapter] = useState(1);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"journal" | "notes" | "saves">("journal");
 
@@ -72,7 +72,7 @@ export function DashboardPage() {
     ]);
     if (!p) { navigate("/"); return; }
     setParty(p);
-    setChapterInput(p.currentChapter);
+    setPendingChapter(p.currentChapter);
     setNotes(n);
     setSlots(s);
     setTimeline(t);
@@ -135,18 +135,52 @@ export function DashboardPage() {
           </div>
 
           {/* Chapter */}
-          <div className="flex items-center gap-2">
-            <button className="btn btn-outline btn-xs" disabled={busy} onClick={() => run(() => updateChapter.execute(partyId!, Math.max(1, chapterInput - 1)))}>−</button>
-            <input
-              type="number"
-              min={1}
-              className="input input-bordered input-sm flex-1 text-center"
-              value={chapterInput}
-              onChange={(e) => setChapterInput(Number(e.target.value))}
-              onBlur={() => run(() => updateChapter.execute(partyId!, chapterInput))}
-            />
-            <button className="btn btn-outline btn-xs" disabled={busy} onClick={() => run(() => updateChapter.execute(partyId!, chapterInput + 1))}>+</button>
-            <span className="text-sm text-base-content/60">Chapitre</span>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <button
+                className="btn btn-outline btn-xs"
+                disabled={busy}
+                onClick={() => setPendingChapter((v) => Math.max(1, v - 1))}
+              >−</button>
+              <input
+                type="number"
+                min={1}
+                className="input input-bordered input-sm flex-1 text-center"
+                value={pendingChapter}
+                onChange={(e) => setPendingChapter(Math.max(1, Number(e.target.value) || 1))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && pendingChapter !== party.currentChapter) {
+                    run(() => updateChapter.execute(partyId!, pendingChapter));
+                  }
+                }}
+              />
+              <button
+                className="btn btn-outline btn-xs"
+                disabled={busy}
+                onClick={() => setPendingChapter((v) => v + 1)}
+              >+</button>
+              <span className="text-sm text-base-content/60">§ {party.currentChapter}</span>
+            </div>
+            {pendingChapter !== party.currentChapter && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-base-content/50">
+                  § {party.currentChapter} → {pendingChapter}
+                </span>
+                <button
+                  className="btn btn-success btn-xs flex-1"
+                  disabled={busy}
+                  onClick={() => run(() => updateChapter.execute(partyId!, pendingChapter))}
+                >
+                  ✓ Valider
+                </button>
+                <button
+                  className="btn btn-ghost btn-xs"
+                  onClick={() => setPendingChapter(party.currentChapter)}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
