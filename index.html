@@ -7,6 +7,19 @@
     <meta name="theme-color" content="#1d1d2e" />
     <meta name="description" content="Gestion de partie – La Saga de Dagda Tome 1" />
     <title>Dagda – La Saga</title>
+    <script>
+      // Restore path redirected by 404.html for SPA routing on GitHub Pages
+      (function () {
+        var p = new URLSearchParams(window.location.search).get("p");
+        if (p) {
+          window.history.replaceState(
+            null,
+            null,
+            window.location.pathname + p + (window.location.hash || ""),
+          );
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
