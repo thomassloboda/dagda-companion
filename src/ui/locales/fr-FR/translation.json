@@ -1,0 +1,266 @@
+{
+  "common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "add": "Ajouter",
+    "addBtn": "+ Ajouter",
+    "restore": "Restaurer",
+    "back": "←",
+    "empty": "Vide"
+  },
+  "status": {
+    "active": "En cours",
+    "finished": "Terminée",
+    "dead": "Morte"
+  },
+  "timeAgo": {
+    "now": "à l'instant",
+    "minutes": "il y a {{count}} min",
+    "hours": "il y a {{count}} h",
+    "days": "il y a {{count}} j"
+  },
+  "timeline": {
+    "PARTY_CREATED": "🎲 Création",
+    "CHAPTER_SET": "📖 Chapitre",
+    "HP_CHANGED": "❤️ PV",
+    "LUCK_SPENT": "🍀 Chance",
+    "NOTE_ADDED": "📝 Note",
+    "SAVE_CREATED": "💾 Sauvegarde",
+    "SAVE_REPLACED": "💾 Sauvegarde",
+    "SAVE_RESTORED": "🔄 Restauration",
+    "COMBAT_VICTORY": "⚔️ Victoire",
+    "COMBAT_DEFEAT": "💀 Défaite",
+    "DEATH_RESET": "☠️ Mort",
+    "PARTY_EXPORTED": "📤 Export",
+    "PARTY_FINISHED": "🏁 Terminée",
+    "CUSTOM_ACTION": "✏️ Action",
+    "DICE_REROLLED": "🎲 Relance",
+    "COMBAT_STARTED": "⚔️ Combat",
+    "COMBAT_HIT": "🗡️ Touché",
+    "COMBAT_MISS": "💨 Raté",
+    "COMBAT_ENEMY_HIT": "🛡️ Touché",
+    "COMBAT_ENEMY_MISS": "💨 Raté",
+    "INVENTORY_CHANGED": "🎒 Inventaire"
+  },
+  "talents": {
+    "INSTINCT": "Instinct",
+    "HERBOLOGY": "Herboristerie",
+    "DISCRETION": "Discrétion",
+    "PERSUASION": "Persuasion",
+    "OBSERVATION": "Observation",
+    "SLEIGHT_OF_HAND": "Tour de main",
+    "EMPATHY_PRACTICE": "Pratique de l'empathie"
+  },
+  "home": {
+    "title": "Mes parties",
+    "newParty": "+ Nouvelle partie",
+    "emptyState": "Aucune partie. Commencez l'aventure !",
+    "createParty": "Créer une partie",
+    "deleteTooltip": "Supprimer la partie",
+    "deleteTitle": "Supprimer la partie ?",
+    "deleteBody": "« {{name}} » sera supprimée définitivement avec toutes ses sauvegardes, notes et journal. Cette action est irréversible."
+  },
+  "dashboard": {
+    "combatBtn": "⚔️ Combat",
+    "hpDisplay": "PV {{current}} / {{max}}",
+    "luck": "🍀 Chance : {{value}}",
+    "dex": "⚡ DEX : {{value}}",
+    "hpMinus": "−1 PV",
+    "hpPlus": "+1 PV",
+    "chapterCurrent": "§ {{chapter}}",
+    "chapterPending": "§ {{from}} → {{to}}",
+    "chapterConfirm": "✓ Valider",
+    "tabs": {
+      "journal": "Journal",
+      "inventory": "Inventaire",
+      "notes": "Notes",
+      "saves": "Sauvegardes"
+    },
+    "journal": {
+      "placeholder": "Action libre…",
+      "addBtn": "Ajouter",
+      "empty": "Aucune action."
+    },
+    "notes": {
+      "placeholder": "Nouvelle note…",
+      "empty": "Aucune note."
+    },
+    "saves": {
+      "empty": "Aucune sauvegarde.",
+      "slotEmpty": "Vide",
+      "simplifiedHint": "Mode Simplifié : seule la plus récente est restaurable",
+      "simplifiedWarning": "Mode Simplifié : restauration désactivée pour ce slot.",
+      "exportBtn": "📤 Exporter JSON",
+      "finishBtn": "🏁 Terminer la partie",
+      "finishedAlert": "Partie terminée. Exportez pour archiver.",
+      "deleteBtn": "🗑 Supprimer la partie"
+    },
+    "inventory": {
+      "weaponsTitle": "⚔️ Armes",
+      "weaponsEmpty": "Aucune arme.",
+      "weaponBonus": "+{{bonus}} dégâts",
+      "weaponEquipped": "équipée",
+      "equipTooltip": "Équiper",
+      "addWeaponTitle": "Ajouter une arme",
+      "weaponNamePlaceholder": "Nom *",
+      "weaponBonusLabel": "Bonus dégâts",
+      "weaponDescPlaceholder": "Spécificité (optionnel)",
+      "bagTitle": "🎒 Sac",
+      "bagEmpty": "Sac vide.",
+      "addItemTitle": "Ajouter un objet",
+      "itemNamePlaceholder": "Nom *",
+      "itemQtyLabel": "Qté",
+      "itemDescPlaceholder": "Description (optionnel)",
+      "currencyTitle": "🔩 Boulons",
+      "boulonsUnit": "boulon(s)"
+    },
+    "finishTitle": "Terminer la partie ?",
+    "finishBody": "La partie « {{name}} » sera marquée comme terminée. Vous pourrez toujours consulter son historique et l'exporter.",
+    "finishBtn": "🏁 Terminer",
+    "deleteTitle": "Supprimer la partie ?",
+    "deleteBody": "« {{name}} » et toutes ses données (sauvegardes, journal, notes) seront supprimées définitivement. Cette action est irréversible.",
+    "deleteBtn": "🗑 Supprimer",
+    "inventoryLog": {
+      "weaponAdded": "Arme ajoutée : {{name}}",
+      "weaponRemoved": "Arme retirée",
+      "weaponEquipped": "Arme équipée : {{name}}",
+      "itemAdded": "Objet ajouté : {{name}}",
+      "itemQtyChanged": "{{delta}} {{name}}",
+      "itemRemoved": "Objet retiré : {{name}}",
+      "currencyUpdated": "Monnaie mise à jour"
+    }
+  },
+  "createParty": {
+    "steps": {
+      "mode": "Mode",
+      "talent": "Talent",
+      "stats": "Stats"
+    },
+    "partyNameTitle": "Nom de la partie",
+    "partyNamePlaceholder": "Ex : Aventure de Riann",
+    "gameModeTitle": "Mode de jeu",
+    "helpModes": "Aide – Modes de jeu",
+    "chooseTalent": "Choisissez votre talent",
+    "helpTalents": "Aide – Talents",
+    "talentHelpIntro": "Chaque talent offre un avantage narratif ou mécanique dans certaines situations :",
+    "characterTitle": "Votre personnage",
+    "characterNamePlaceholder": "Nom du personnage",
+    "initialStats": "Caractéristiques initiales",
+    "hpMaxLabel": "PV max (2d6 × 4)",
+    "hpRollDisplay": "{{d1}}+{{d2}}={{roll}} → {{hpMax}} PV",
+    "luckLabel": "Chance (1d6)",
+    "dexterityLabel": "Dextérité",
+    "rerollBtn": "🎲 Relancer les dés",
+    "helpStats": "Aide – Règles des caractéristiques",
+    "prev": "← Précédent",
+    "next": "Suivant →",
+    "create": "Créer la partie ✓",
+    "modes": {
+      "NARRATIVE": {
+        "label": "Narratif",
+        "desc": "Pas de combat. Idéal pour explorer l'histoire."
+      },
+      "SIMPLIFIED": {
+        "label": "Simplifié",
+        "desc": "Combat simplifié, une seule sauvegarde restaurable."
+      },
+      "MORTAL": {
+        "label": "Mortel",
+        "desc": "Si vous mourez, reset complet. Haut risque."
+      }
+    },
+    "modeHelp": {
+      "narrativeDesc": "combat optionnel, sauvegardes libres.",
+      "simplifiedDesc": "combat allégé (≤5 adversaires → victoire auto). Seule la sauvegarde la plus récente est restaurable.",
+      "mortalDesc": "si PV = 0 → reset (ch.1, PV max, inventaire vidé, chance conservée)."
+    },
+    "talentHelp": {
+      "INSTINCT": "réactions rapides, éviter les pièges.",
+      "HERBOLOGY": "préparer ou identifier des plantes/remèdes.",
+      "DISCRETION": "se faufiler sans être vu.",
+      "PERSUASION": "convaincre PNJ, négocier.",
+      "OBSERVATION": "détecter détails cachés, indices.",
+      "SLEIGHT_OF_HAND": "manipuler objets avec dextérité.",
+      "EMPATHY_PRACTICE": "lire les émotions, créer du lien."
+    },
+    "statsHelp": {
+      "hpMax": "somme de 2d6 × 4. Vous commencez avec tous vos PV.",
+      "luck": "1d6. Permet d'ajuster un dé en combat (coût = delta).",
+      "dexterity": "7 (fixe). Utilisée pour toucher en combat (2d6 ≤ DEX)."
+    },
+    "createdLabel": "Partie \"{{name}}\" créée (mode {{mode}})"
+  },
+  "combat": {
+    "title": "⚔️ Combat",
+    "back": "← Retour",
+    "mortalDeath": {
+      "title": "Vous êtes mort.",
+      "desc": "{{partyName}} — L'aventure se termine ici. En mode Mortel, il n'y a pas de retour en arrière.",
+      "homeBtn": "Retour à l'accueil"
+    },
+    "reroll": {
+      "btn": "🔄 Relancer (en cas de souci)",
+      "warning": "⚠️ À utiliser seulement si le jet n'a pas été pris en compte / bug visuel.",
+      "confirmBtn": "Confirmer relance",
+      "cancelBtn": "Annuler"
+    },
+    "setup": {
+      "enemiesTitle": "Adversaires ({{count}}/5)",
+      "enemyNamePlaceholder": "Nom",
+      "defaultEnemyName": "Adversaire",
+      "defaultEnemyNameN": "Adversaire {{n}}",
+      "hpMaxLabel": "PV max",
+      "dexLabel": "DEX",
+      "atkBonusLabel": "Bonus ATK",
+      "addEnemyBtn": "+ Ajouter adversaire",
+      "startBtn": "⚔️ Démarrer le combat"
+    },
+    "ongoing": {
+      "turnInfo": "Tour {{turn}} · {{count}} adversaire(s) actif(s)",
+      "lastRoll": "Votre dernier jet : {{d1}}+{{d2}}={{total}} (DEX {{dex}})",
+      "attackBtn": "🗡️ Attaquer",
+      "enemyAttackBtn": "🛡️ {{name}} attaque",
+      "enemyHpMinus": "−1 PV ennemi",
+      "enemyHpPlus": "+1 PV ennemi",
+      "luckSection": "🍀 Utiliser la chance ({{luck}} restant)",
+      "diceTo": "Dé1→{{val}}"
+    },
+    "result": {
+      "victory": "🏆 Victoire !",
+      "defeat": "💀 Défaite — PV à 0",
+      "restoreHint": "Vous pouvez restaurer une sauvegarde depuis le tableau de bord.",
+      "rerollCount": "{{count}} relance(s) effectuée(s).",
+      "backBtn": "Retour au tableau de bord"
+    },
+    "log": {
+      "title": "Journal combat",
+      "started": "Combat démarré contre {{count}} adversaire(s)",
+      "playerHit": "Tour {{turn}} — Joueur touche ({{rolls}}={{total}}){{weapon}} → {{damage}} dégâts",
+      "playerMiss": "Tour {{turn}} — Joueur rate ({{rolls}}={{total}} > DEX {{dex}})",
+      "enemyHit": "Tour {{turn}} — {{name}} touche ({{rolls}}={{total}}) → {{damage}} dégâts",
+      "enemyMiss": "Tour {{turn}} — {{name}} rate ({{rolls}}={{total}})",
+      "rerollLog": "Relance dé joueur (avant: {{before}}, après: {{after}})",
+      "victory": "Victoire !",
+      "defeat": "Défaite — PV à 0."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "themeTitle": "Thème",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeAuto": "Automatique (OS)",
+    "languageTitle": "Langue",
+    "langFR": "🇫🇷 Français",
+    "langEN": "🇬🇧 English",
+    "importTitle": "Importer une partie",
+    "importDesc": "Chargez un fichier JSON exporté depuis une autre session.",
+    "importBtn": "📂 Choisir un fichier JSON",
+    "importError": "Erreur d'import : {{message}}",
+    "footer": "Dagda – La Saga v0.1.0"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "backBtn": "Retour à l'accueil"
+  }
+}

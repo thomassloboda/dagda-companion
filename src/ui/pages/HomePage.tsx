@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { partyRepo, deleteParty } from "../../application/container";
 import type { Party } from "../../domain/models";
 import { PartyStatus } from "../../domain/models";
-
-const STATUS_LABELS: Record<PartyStatus, string> = {
-  [PartyStatus.ACTIVE]: "En cours",
-  [PartyStatus.FINISHED]: "Terminée",
-  [PartyStatus.DEAD]: "Morte",
-};
 
 const STATUS_BADGE: Record<PartyStatus, string> = {
   [PartyStatus.ACTIVE]: "badge-success",
@@ -16,22 +11,29 @@ const STATUS_BADGE: Record<PartyStatus, string> = {
   [PartyStatus.DEAD]: "badge-error",
 };
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "à l'instant";
-  if (minutes < 60) return `il y a ${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `il y a ${hours} h`;
-  return `il y a ${Math.floor(hours / 24)} j`;
-}
-
 export function HomePage() {
+  const { t } = useTranslation();
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
   const [toDelete, setToDelete] = useState<Party | null>(null);
   const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
+
+  function timeAgo(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return t("timeAgo.now");
+    if (minutes < 60) return t("timeAgo.minutes", { count: minutes });
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return t("timeAgo.hours", { count: hours });
+    return t("timeAgo.days", { count: Math.floor(hours / 24) });
+  }
+
+  const STATUS_LABELS: Record<PartyStatus, string> = {
+    [PartyStatus.ACTIVE]: t("status.active"),
+    [PartyStatus.FINISHED]: t("status.finished"),
+    [PartyStatus.DEAD]: t("status.dead"),
+  };
 
   async function load() {
     const data = await partyRepo.findAll();
@@ -39,7 +41,9 @@ export function HomePage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function handleDelete() {
     if (!toDelete) return;
@@ -61,31 +65,27 @@ export function HomePage() {
   return (
     <div className="mx-auto max-w-lg p-4">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mes parties</h1>
+        <h1 className="text-2xl font-bold">{t("home.title")}</h1>
         <Link to="/party/new" className="btn btn-primary">
-          + Nouvelle partie
+          {t("home.newParty")}
         </Link>
       </div>
 
       {parties.length === 0 ? (
         <div className="card bg-base-200 text-center">
           <div className="card-body gap-4">
-            <p className="text-base-content/60">Aucune partie. Commencez l'aventure !</p>
+            <p className="text-base-content/60">{t("home.emptyState")}</p>
             <Link to="/party/new" className="btn btn-primary btn-lg w-full">
-              Créer une partie
+              {t("home.createParty")}
             </Link>
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {parties.map((p) => (
-            <div
-              key={p.id}
-              className="card bg-base-200 shadow transition hover:shadow-md"
-            >
+            <div key={p.id} className="card bg-base-200 shadow transition hover:shadow-md">
               <div className="card-body gap-1 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  {/* Zone cliquable → dashboard */}
                   <button
                     className="flex flex-1 flex-col items-start gap-1 text-left"
                     onClick={() => navigate(`/party/${p.id}`)}
@@ -102,11 +102,13 @@ export function HomePage() {
                     <div className="text-xs text-base-content/40">{timeAgo(p.updatedAt)}</div>
                   </button>
 
-                  {/* Bouton suppression */}
                   <button
                     className="btn btn-ghost btn-sm shrink-0 text-error"
-                    title="Supprimer la partie"
-                    onClick={(e) => { e.stopPropagation(); setToDelete(p); }}
+                    title={t("home.deleteTooltip")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setToDelete(p);
+                    }}
                   >
                     🗑
                   </button>
@@ -117,30 +119,26 @@ export function HomePage() {
         </div>
       )}
 
-      {/* ── Modal confirmation suppression ── */}
+      {/* Modal confirmation suppression */}
       {toDelete && (
         <div className="modal modal-open">
           <div className="modal-box">
-            <h3 className="text-lg font-bold text-error">Supprimer la partie ?</h3>
-            <p className="py-3 text-sm">
-              <span className="font-semibold">« {toDelete.name} »</span> sera supprimée
-              définitivement avec toutes ses sauvegardes, notes et journal.
-              Cette action est irréversible.
-            </p>
+            <h3 className="text-lg font-bold text-error">{t("home.deleteTitle")}</h3>
+            <p className="py-3 text-sm">{t("home.deleteBody", { name: toDelete.name })}</p>
             <div className="modal-action gap-2">
               <button
                 className="btn btn-ghost flex-1"
                 disabled={deleting}
                 onClick={() => setToDelete(null)}
               >
-                Annuler
+                {t("common.cancel")}
               </button>
-              <button
-                className="btn btn-error flex-1"
-                disabled={deleting}
-                onClick={handleDelete}
-              >
-                {deleting ? <span className="loading loading-spinner loading-sm" /> : "Supprimer"}
+              <button className="btn btn-error flex-1" disabled={deleting} onClick={handleDelete}>
+                {deleting ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  t("common.delete")
+                )}
               </button>
             </div>
           </div>

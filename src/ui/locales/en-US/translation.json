@@ -1,0 +1,266 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "addBtn": "+ Add",
+    "restore": "Restore",
+    "back": "←",
+    "empty": "Empty"
+  },
+  "status": {
+    "active": "Active",
+    "finished": "Finished",
+    "dead": "Dead"
+  },
+  "timeAgo": {
+    "now": "just now",
+    "minutes": "{{count}} min ago",
+    "hours": "{{count}} h ago",
+    "days": "{{count}} d ago"
+  },
+  "timeline": {
+    "PARTY_CREATED": "🎲 Created",
+    "CHAPTER_SET": "📖 Chapter",
+    "HP_CHANGED": "❤️ HP",
+    "LUCK_SPENT": "🍀 Luck",
+    "NOTE_ADDED": "📝 Note",
+    "SAVE_CREATED": "💾 Save",
+    "SAVE_REPLACED": "💾 Save",
+    "SAVE_RESTORED": "🔄 Restore",
+    "COMBAT_VICTORY": "⚔️ Victory",
+    "COMBAT_DEFEAT": "💀 Defeat",
+    "DEATH_RESET": "☠️ Death",
+    "PARTY_EXPORTED": "📤 Export",
+    "PARTY_FINISHED": "🏁 Finished",
+    "CUSTOM_ACTION": "✏️ Action",
+    "DICE_REROLLED": "🎲 Reroll",
+    "COMBAT_STARTED": "⚔️ Combat",
+    "COMBAT_HIT": "🗡️ Hit",
+    "COMBAT_MISS": "💨 Miss",
+    "COMBAT_ENEMY_HIT": "🛡️ Hit",
+    "COMBAT_ENEMY_MISS": "💨 Miss",
+    "INVENTORY_CHANGED": "🎒 Inventory"
+  },
+  "talents": {
+    "INSTINCT": "Instinct",
+    "HERBOLOGY": "Herbology",
+    "DISCRETION": "Stealth",
+    "PERSUASION": "Persuasion",
+    "OBSERVATION": "Observation",
+    "SLEIGHT_OF_HAND": "Sleight of Hand",
+    "EMPATHY_PRACTICE": "Empathy"
+  },
+  "home": {
+    "title": "My parties",
+    "newParty": "+ New party",
+    "emptyState": "No parties yet. Start your adventure!",
+    "createParty": "Create a party",
+    "deleteTooltip": "Delete party",
+    "deleteTitle": "Delete party?",
+    "deleteBody": "\"{{name}}\" will be permanently deleted along with all its saves, notes, and journal. This action is irreversible."
+  },
+  "dashboard": {
+    "combatBtn": "⚔️ Combat",
+    "hpDisplay": "HP {{current}} / {{max}}",
+    "luck": "🍀 Luck: {{value}}",
+    "dex": "⚡ DEX: {{value}}",
+    "hpMinus": "−1 HP",
+    "hpPlus": "+1 HP",
+    "chapterCurrent": "§ {{chapter}}",
+    "chapterPending": "§ {{from}} → {{to}}",
+    "chapterConfirm": "✓ Confirm",
+    "tabs": {
+      "journal": "Journal",
+      "inventory": "Inventory",
+      "notes": "Notes",
+      "saves": "Saves"
+    },
+    "journal": {
+      "placeholder": "Free action…",
+      "addBtn": "Add",
+      "empty": "No actions yet."
+    },
+    "notes": {
+      "placeholder": "New note…",
+      "empty": "No notes yet."
+    },
+    "saves": {
+      "empty": "No saves yet.",
+      "slotEmpty": "Empty",
+      "simplifiedHint": "Simplified mode: only the most recent save can be restored",
+      "simplifiedWarning": "Simplified mode: restore disabled for this slot.",
+      "exportBtn": "📤 Export JSON",
+      "finishBtn": "🏁 Finish party",
+      "finishedAlert": "Party finished. Export to archive.",
+      "deleteBtn": "🗑 Delete party"
+    },
+    "inventory": {
+      "weaponsTitle": "⚔️ Weapons",
+      "weaponsEmpty": "No weapons.",
+      "weaponBonus": "+{{bonus}} damage",
+      "weaponEquipped": "equipped",
+      "equipTooltip": "Equip",
+      "addWeaponTitle": "Add a weapon",
+      "weaponNamePlaceholder": "Name *",
+      "weaponBonusLabel": "Damage bonus",
+      "weaponDescPlaceholder": "Specificity (optional)",
+      "bagTitle": "🎒 Bag",
+      "bagEmpty": "Empty bag.",
+      "addItemTitle": "Add an item",
+      "itemNamePlaceholder": "Name *",
+      "itemQtyLabel": "Qty",
+      "itemDescPlaceholder": "Description (optional)",
+      "currencyTitle": "🔩 Boulons",
+      "boulonsUnit": "boulon(s)"
+    },
+    "finishTitle": "Finish party?",
+    "finishBody": "Party \"{{name}}\" will be marked as finished. You can still view its history and export it.",
+    "finishBtn": "🏁 Finish",
+    "deleteTitle": "Delete party?",
+    "deleteBody": "\"{{name}}\" and all its data (saves, journal, notes) will be permanently deleted. This action is irreversible.",
+    "deleteBtn": "🗑 Delete",
+    "inventoryLog": {
+      "weaponAdded": "Weapon added: {{name}}",
+      "weaponRemoved": "Weapon removed",
+      "weaponEquipped": "Weapon equipped: {{name}}",
+      "itemAdded": "Item added: {{name}}",
+      "itemQtyChanged": "{{delta}} {{name}}",
+      "itemRemoved": "Item removed: {{name}}",
+      "currencyUpdated": "Currency updated"
+    }
+  },
+  "createParty": {
+    "steps": {
+      "mode": "Mode",
+      "talent": "Talent",
+      "stats": "Stats"
+    },
+    "partyNameTitle": "Party name",
+    "partyNamePlaceholder": "E.g.: Riann's Adventure",
+    "gameModeTitle": "Game mode",
+    "helpModes": "Help – Game modes",
+    "chooseTalent": "Choose your talent",
+    "helpTalents": "Help – Talents",
+    "talentHelpIntro": "Each talent provides a narrative or mechanical advantage in certain situations:",
+    "characterTitle": "Your character",
+    "characterNamePlaceholder": "Character name",
+    "initialStats": "Initial stats",
+    "hpMaxLabel": "Max HP (2d6 × 4)",
+    "hpRollDisplay": "{{d1}}+{{d2}}={{roll}} → {{hpMax}} HP",
+    "luckLabel": "Luck (1d6)",
+    "dexterityLabel": "Dexterity",
+    "rerollBtn": "🎲 Re-roll dice",
+    "helpStats": "Help – Stat rules",
+    "prev": "← Previous",
+    "next": "Next →",
+    "create": "Create party ✓",
+    "modes": {
+      "NARRATIVE": {
+        "label": "Narrative",
+        "desc": "No combat. Ideal for exploring the story."
+      },
+      "SIMPLIFIED": {
+        "label": "Simplified",
+        "desc": "Simplified combat, only one save restorable."
+      },
+      "MORTAL": {
+        "label": "Mortal",
+        "desc": "If you die, full reset. High risk."
+      }
+    },
+    "modeHelp": {
+      "narrativeDesc": "optional combat, free saves.",
+      "simplifiedDesc": "lightweight combat (≤5 enemies → auto victory). Only the most recent save can be restored.",
+      "mortalDesc": "if HP = 0 → reset (ch.1, max HP, inventory cleared, luck kept)."
+    },
+    "talentHelp": {
+      "INSTINCT": "quick reactions, avoid traps.",
+      "HERBOLOGY": "prepare or identify plants/remedies.",
+      "DISCRETION": "sneak around without being seen.",
+      "PERSUASION": "convince NPCs, negotiate.",
+      "OBSERVATION": "detect hidden details, clues.",
+      "SLEIGHT_OF_HAND": "manipulate objects with dexterity.",
+      "EMPATHY_PRACTICE": "read emotions, build connections."
+    },
+    "statsHelp": {
+      "hpMax": "sum of 2d6 × 4. You start with full HP.",
+      "luck": "1d6. Lets you adjust a die in combat (cost = delta).",
+      "dexterity": "7 (fixed). Used to hit in combat (2d6 ≤ DEX)."
+    },
+    "createdLabel": "Party \"{{name}}\" created (mode {{mode}})"
+  },
+  "combat": {
+    "title": "⚔️ Combat",
+    "back": "← Back",
+    "mortalDeath": {
+      "title": "You are dead.",
+      "desc": "{{partyName}} — The adventure ends here. In Mortal mode, there is no turning back.",
+      "homeBtn": "Back to home"
+    },
+    "reroll": {
+      "btn": "🔄 Re-roll (if something went wrong)",
+      "warning": "⚠️ Use only if the roll wasn't registered / visual bug.",
+      "confirmBtn": "Confirm re-roll",
+      "cancelBtn": "Cancel"
+    },
+    "setup": {
+      "enemiesTitle": "Enemies ({{count}}/5)",
+      "enemyNamePlaceholder": "Name",
+      "defaultEnemyName": "Enemy",
+      "defaultEnemyNameN": "Enemy {{n}}",
+      "hpMaxLabel": "Max HP",
+      "dexLabel": "DEX",
+      "atkBonusLabel": "ATK Bonus",
+      "addEnemyBtn": "+ Add enemy",
+      "startBtn": "⚔️ Start combat"
+    },
+    "ongoing": {
+      "turnInfo": "Turn {{turn}} · {{count}} active enemy(s)",
+      "lastRoll": "Your last roll: {{d1}}+{{d2}}={{total}} (DEX {{dex}})",
+      "attackBtn": "🗡️ Attack",
+      "enemyAttackBtn": "🛡️ {{name}} attacks",
+      "enemyHpMinus": "−1 enemy HP",
+      "enemyHpPlus": "+1 enemy HP",
+      "luckSection": "🍀 Use luck ({{luck}} remaining)",
+      "diceTo": "Die1→{{val}}"
+    },
+    "result": {
+      "victory": "🏆 Victory!",
+      "defeat": "💀 Defeat — HP at 0",
+      "restoreHint": "You can restore a save from the dashboard.",
+      "rerollCount": "{{count}} re-roll(s) performed.",
+      "backBtn": "Back to dashboard"
+    },
+    "log": {
+      "title": "Combat log",
+      "started": "Combat started against {{count}} enemy(s)",
+      "playerHit": "Turn {{turn}} — Player hits ({{rolls}}={{total}}){{weapon}} → {{damage}} damage",
+      "playerMiss": "Turn {{turn}} — Player misses ({{rolls}}={{total}} > DEX {{dex}})",
+      "enemyHit": "Turn {{turn}} — {{name}} hits ({{rolls}}={{total}}) → {{damage}} damage",
+      "enemyMiss": "Turn {{turn}} — {{name}} misses ({{rolls}}={{total}})",
+      "rerollLog": "Player die re-roll (before: {{before}}, after: {{after}})",
+      "victory": "Victory!",
+      "defeat": "Defeat — HP at 0."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "themeTitle": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeAuto": "Automatic (OS)",
+    "languageTitle": "Language",
+    "langFR": "🇫🇷 Français",
+    "langEN": "🇬🇧 English",
+    "importTitle": "Import a party",
+    "importDesc": "Load a JSON file exported from another session.",
+    "importBtn": "📂 Choose a JSON file",
+    "importError": "Import error: {{message}}",
+    "footer": "Dagda – La Saga v0.1.0"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "backBtn": "Back to home"
+  }
+}

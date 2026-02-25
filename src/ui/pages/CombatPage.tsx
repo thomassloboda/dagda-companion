@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { Party, Enemy, CombatLogEntry } from "../../domain/models";
 import { TimelineEventType, OutboxStatus, PartyStatus, GameMode } from "../../domain/models";
 import {
@@ -11,7 +12,13 @@ import {
   applyLuck,
   clock,
 } from "../../application/container";
-import { resolveHit, resolveDamage, applyLuckToDie, isVictory, isDefeat } from "../../domain/rules/combat";
+import {
+  resolveHit,
+  resolveDamage,
+  applyLuckToDie,
+  isVictory,
+  isDefeat,
+} from "../../domain/rules/combat";
 
 type CombatStatus = "setup" | "ongoing" | "victory" | "defeat" | "mortal_death";
 
@@ -22,39 +29,41 @@ interface RerollRecord {
 }
 
 function MortalDeathScreen({ partyName, onConfirm }: { partyName: string; onConfirm: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-base-100 p-6 text-center">
       <div className="text-6xl">☠️</div>
-      <h1 className="text-3xl font-bold text-error">Vous êtes mort.</h1>
-      <p className="max-w-xs text-base-content/70">
-        <span className="font-semibold">{partyName}</span> — L'aventure se termine ici.
-        En mode Mortel, il n'y a pas de retour en arrière.
-      </p>
+      <h1 className="text-3xl font-bold text-error">{t("combat.mortalDeath.title")}</h1>
+      <p className="max-w-xs text-base-content/70">{t("combat.mortalDeath.desc", { partyName })}</p>
       <button className="btn btn-error btn-lg w-full max-w-xs" onClick={onConfirm}>
-        Retour à l'accueil
+        {t("combat.mortalDeath.homeBtn")}
       </button>
     </div>
   );
 }
 
 function RerollButton({ onReroll }: { onReroll: () => void }) {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
   return (
     <div className="mt-2">
       <button className="btn btn-ghost btn-xs text-warning" onClick={() => setShow(true)}>
-        🔄 Relancer (en cas de souci)
+        {t("combat.reroll.btn")}
       </button>
       {show && (
         <div className="mt-1 rounded-lg border border-warning bg-warning/10 p-2 text-xs text-warning">
-          ⚠️ À utiliser seulement si le jet n'a pas été pris en compte / bug visuel.
+          {t("combat.reroll.warning")}
           <button
             className="btn btn-warning btn-xs ml-2"
-            onClick={() => { onReroll(); setShow(false); }}
+            onClick={() => {
+              onReroll();
+              setShow(false);
+            }}
           >
-            Confirmer relance
+            {t("combat.reroll.confirmBtn")}
           </button>
           <button className="btn btn-ghost btn-xs ml-1" onClick={() => setShow(false)}>
-            Annuler
+            {t("combat.reroll.cancelBtn")}
           </button>
         </div>
       )}
@@ -63,6 +72,7 @@ function RerollButton({ onReroll }: { onReroll: () => void }) {
 }
 
 export function CombatPage() {
+  const { t } = useTranslation();
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
 
@@ -71,7 +81,14 @@ export function CombatPage() {
 
   // Setup
   const [enemies, setEnemies] = useState<Enemy[]>([
-    { id: crypto.randomUUID(), name: "Adversaire", hpMax: 10, hpCurrent: 10, dexterity: 6, attackBonus: 0 },
+    {
+      id: crypto.randomUUID(),
+      name: t("combat.setup.defaultEnemyName"),
+      hpMax: 10,
+      hpCurrent: 10,
+      dexterity: 6,
+      attackBonus: 0,
+    },
   ]);
   const [status, setStatus] = useState<CombatStatus>("setup");
   const [combatLog, setCombatLog] = useState<CombatLogEntry[]>([]);
@@ -80,21 +97,30 @@ export function CombatPage() {
 
   // Current rolls (for display)
   const [playerRolls, setPlayerRolls] = useState<[number, number]>([1, 1]);
-  const [_damageRoll, setDamageRoll] = useState<number>(1);
+  const [, setDamageRoll] = useState<number>(1);
   const [rerolls, setRerolls] = useState<RerollRecord[]>([]);
 
   const load = useCallback(async () => {
     if (!partyId) return;
     const p = await partyRepo.findById(partyId);
-    if (!p) { navigate("/"); return; }
+    if (!p) {
+      navigate("/");
+      return;
+    }
     setParty(p);
     setLoading(false);
   }, [partyId, navigate]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   if (loading || !party) {
-    return <div className="flex min-h-[60vh] items-center justify-center"><span className="loading loading-spinner loading-lg" /></div>;
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <span className="loading loading-spinner loading-lg" />
+      </div>
+    );
   }
 
   const char = party.character;
@@ -106,7 +132,14 @@ export function CombatPage() {
     if (enemies.length >= 5) return;
     setEnemies((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name: `Adversaire ${prev.length + 1}`, hpMax: 10, hpCurrent: 10, dexterity: 6, attackBonus: 0 },
+      {
+        id: crypto.randomUUID(),
+        name: t("combat.setup.defaultEnemyNameN", { n: prev.length + 1 }),
+        hpMax: 10,
+        hpCurrent: 10,
+        dexterity: 6,
+        attackBonus: 0,
+      },
     ]);
   }
 
@@ -124,18 +157,14 @@ export function CombatPage() {
     setBusy(true);
     const now = clock.now();
     await eventLog.append({
-      id: crypto.randomUUID(), partyId: partyId!,
+      id: crypto.randomUUID(),
+      partyId: partyId!,
       type: TimelineEventType.COMBAT_STARTED,
-      label: `Combat démarré contre ${enemies.length} adversaire(s)`,
+      label: t("combat.log.started", { count: enemies.length }),
       payload: { enemies: enemies.map((e) => e.name) },
       createdAt: now,
     });
-    // Narrative mode: ≤5 → auto victory
-    if (enemies.length <= 5) {
-      setStatus("ongoing");
-    } else {
-      setStatus("ongoing");
-    }
+    setStatus("ongoing");
     setBusy(false);
   }
 
@@ -155,30 +184,59 @@ export function CombatPage() {
       const dr = rng.rollD6();
       setDamageRoll(dr);
       const inv = char.inventory;
-      const weapon =
-        inv.weapons.find((w) => w.id === inv.equippedWeaponId) ?? inv.weapons[0];
+      const weapon = inv.weapons.find((w) => w.id === inv.equippedWeaponId) ?? inv.weapons[0];
       const damage = resolveDamage(dr, weapon?.bonus ?? 0);
-      const weaponLabel = weapon ? ` [${weapon.name}${weapon.bonus ? ` +${weapon.bonus}` : ""}]` : "";
+      const weaponLabel = weapon
+        ? ` [${weapon.name}${weapon.bonus ? ` +${weapon.bonus}` : ""}]`
+        : "";
       logEntry = {
-        turn, actor: "player", roll: rolls, success: true,
+        turn,
+        actor: "player",
+        roll: rolls,
+        success: true,
         damage: damage.total,
-        label: `Tour ${turn} — Joueur touche (${rolls.join("+")}=${hit.total})${weaponLabel} → ${damage.total} dégâts`,
+        label: t("combat.log.playerHit", {
+          turn,
+          rolls: rolls.join("+"),
+          total: hit.total,
+          weapon: weaponLabel,
+          damage: damage.total,
+        }),
       };
-      // Apply damage to enemy
       setEnemies((prev) =>
         prev.map((e) =>
-          e.id === enemyId
-            ? { ...e, hpCurrent: Math.max(0, e.hpCurrent - damage.total) }
-            : e,
+          e.id === enemyId ? { ...e, hpCurrent: Math.max(0, e.hpCurrent - damage.total) } : e,
         ),
       );
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_HIT, label: logEntry.label, payload: { rolls, damage: damage.total, turn }, createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_HIT,
+        label: logEntry.label,
+        payload: { rolls, damage: damage.total, turn },
+        createdAt: now,
+      });
     } else {
       logEntry = {
-        turn, actor: "player", roll: rolls, success: false,
-        label: `Tour ${turn} — Joueur rate (${rolls.join("+")}=${hit.total} > DEX ${char.dexterity})`,
+        turn,
+        actor: "player",
+        roll: rolls,
+        success: false,
+        label: t("combat.log.playerMiss", {
+          turn,
+          rolls: rolls.join("+"),
+          total: hit.total,
+          dex: char.dexterity,
+        }),
       };
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_MISS, label: logEntry.label, payload: { rolls, turn }, createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_MISS,
+        label: logEntry.label,
+        payload: { rolls, turn },
+        createdAt: now,
+      });
     }
 
     setCombatLog((prev) => [logEntry, ...prev]);
@@ -200,12 +258,29 @@ export function CombatPage() {
       const dr = rng.rollD6();
       const damage = resolveDamage(dr, enemy.attackBonus);
       logEntry = {
-        turn, actor: enemy.id, roll: rolls, success: true, damage: damage.total,
-        label: `Tour ${turn} — ${enemy.name} touche (${rolls.join("+")}=${hit.total}) → ${damage.total} dégâts`,
+        turn,
+        actor: enemy.id,
+        roll: rolls,
+        success: true,
+        damage: damage.total,
+        label: t("combat.log.enemyHit", {
+          turn,
+          name: enemy.name,
+          rolls: rolls.join("+"),
+          total: hit.total,
+          damage: damage.total,
+        }),
       };
       const hpResult = await updateHp.execute(partyId!, -damage.total);
       await load();
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_ENEMY_HIT, label: logEntry.label, payload: { rolls, damage: damage.total, turn }, createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_ENEMY_HIT,
+        label: logEntry.label,
+        payload: { rolls, damage: damage.total, turn },
+        createdAt: now,
+      });
 
       if (hpResult.isMortalDeath) {
         setCombatLog((prev) => [logEntry, ...prev]);
@@ -215,14 +290,29 @@ export function CombatPage() {
       }
     } else {
       logEntry = {
-        turn, actor: enemy.id, roll: rolls, success: false,
-        label: `Tour ${turn} — ${enemy.name} rate (${rolls.join("+")}=${hit.total})`,
+        turn,
+        actor: enemy.id,
+        roll: rolls,
+        success: false,
+        label: t("combat.log.enemyMiss", {
+          turn,
+          name: enemy.name,
+          rolls: rolls.join("+"),
+          total: hit.total,
+        }),
       };
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_ENEMY_MISS, label: logEntry.label, payload: { rolls, turn }, createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_ENEMY_MISS,
+        label: logEntry.label,
+        payload: { rolls, turn },
+        createdAt: now,
+      });
     }
 
     setCombatLog((prev) => [logEntry, ...prev]);
-    setTurn((t) => t + 1);
+    setTurn((tval) => tval + 1);
     await checkCombatEnd();
     setBusy(false);
   }
@@ -250,17 +340,20 @@ export function CombatPage() {
     setRerolls((prev) => [...prev, { context: "combat-player-attack", before, after }]);
     const now = clock.now();
     await eventLog.append({
-      id: crypto.randomUUID(), partyId: partyId!,
+      id: crypto.randomUUID(),
+      partyId: partyId!,
       type: TimelineEventType.DICE_REROLLED,
-      label: `Relance dé joueur (avant: ${before}, après: ${after})`,
+      label: t("combat.log.rerollLog", { before, after }),
       payload: { context: "combat-player-attack", before, after },
       createdAt: now,
     });
     await outboxRepo.append({
-      id: crypto.randomUUID(), partyId: partyId!,
+      id: crypto.randomUUID(),
+      partyId: partyId!,
       type: TimelineEventType.DICE_REROLLED,
       payload: { context: "combat-player-attack", before, after },
-      status: OutboxStatus.PENDING, createdAt: now,
+      status: OutboxStatus.PENDING,
+      createdAt: now,
     });
   }
 
@@ -272,12 +365,24 @@ export function CombatPage() {
     const now = clock.now();
     if (isVictory(enemies)) {
       setStatus("victory");
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_VICTORY, label: "Victoire !", createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_VICTORY,
+        label: t("combat.log.victory"),
+        createdAt: now,
+      });
     } else if (updatedParty.status === PartyStatus.DEAD) {
       // Handled inline in enemyAttack via isMortalDeath
     } else if (isDefeat(updatedParty.character)) {
       setStatus("defeat");
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_DEFEAT, label: "Défaite — PV à 0.", createdAt: now });
+      await eventLog.append({
+        id: crypto.randomUUID(),
+        partyId: partyId!,
+        type: TimelineEventType.COMBAT_DEFEAT,
+        label: t("combat.log.defeat"),
+        createdAt: now,
+      });
     }
   }
 
@@ -286,8 +391,10 @@ export function CombatPage() {
   return (
     <div className="mx-auto max-w-lg p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">⚔️ Combat</h1>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/party/${partyId}`)}>← Retour</button>
+        <h1 className="text-xl font-bold">{t("combat.title")}</h1>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate(`/party/${partyId}`)}>
+          {t("combat.back")}
+        </button>
       </div>
 
       {/* Player stats */}
@@ -295,57 +402,91 @@ export function CombatPage() {
         <div className="card-body gap-1 p-3 text-sm">
           <div className="font-semibold">{char.name}</div>
           <div className="flex gap-4">
-            <span>❤️ {char.hpCurrent}/{char.hpMax}</span>
+            <span>
+              ❤️ {char.hpCurrent}/{char.hpMax}
+            </span>
             <span>🍀 {char.luck}</span>
             <span>⚡ DEX {char.dexterity}</span>
           </div>
-          <progress className="progress progress-success w-full" value={char.hpCurrent} max={char.hpMax} />
+          <progress
+            className="progress progress-success w-full"
+            value={char.hpCurrent}
+            max={char.hpMax}
+          />
         </div>
       </div>
 
       {/* ── SETUP ── */}
       {status === "setup" && (
         <div className="flex flex-col gap-4">
-          <h2 className="font-semibold">Adversaires ({enemies.length}/5)</h2>
+          <h2 className="font-semibold">
+            {t("combat.setup.enemiesTitle", { count: enemies.length })}
+          </h2>
           {enemies.map((e, i) => (
             <div key={e.id} className="card bg-base-200">
               <div className="card-body gap-2 p-3">
                 <div className="flex items-center gap-2">
                   <input
-                    className="input input-bordered input-sm flex-1"
+                    className="input input-sm input-bordered flex-1"
                     value={e.name}
                     onChange={(ev) => updateEnemy(e.id, { name: ev.target.value })}
-                    placeholder="Nom"
+                    placeholder={t("combat.setup.enemyNamePlaceholder")}
                   />
                   {i > 0 && (
-                    <button className="btn btn-ghost btn-xs text-error" onClick={() => removeEnemy(e.id)}>✕</button>
+                    <button
+                      className="btn btn-ghost btn-xs text-error"
+                      onClick={() => removeEnemy(e.id)}
+                    >
+                      ✕
+                    </button>
                   )}
                 </div>
                 <div className="flex gap-2 text-sm">
                   <label className="flex items-center gap-1">
-                    PV max
-                    <input type="number" min={1} className="input input-bordered input-xs w-16" value={e.hpMax}
-                      onChange={(ev) => { const v = Number(ev.target.value); updateEnemy(e.id, { hpMax: v, hpCurrent: v }); }} />
+                    {t("combat.setup.hpMaxLabel")}
+                    <input
+                      type="number"
+                      min={1}
+                      className="input input-xs input-bordered w-16"
+                      value={e.hpMax}
+                      onChange={(ev) => {
+                        const v = Number(ev.target.value);
+                        updateEnemy(e.id, { hpMax: v, hpCurrent: v });
+                      }}
+                    />
                   </label>
                   <label className="flex items-center gap-1">
-                    DEX
-                    <input type="number" min={1} max={12} className="input input-bordered input-xs w-14" value={e.dexterity}
-                      onChange={(ev) => updateEnemy(e.id, { dexterity: Number(ev.target.value) })} />
+                    {t("combat.setup.dexLabel")}
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      className="input input-xs input-bordered w-14"
+                      value={e.dexterity}
+                      onChange={(ev) => updateEnemy(e.id, { dexterity: Number(ev.target.value) })}
+                    />
                   </label>
                   <label className="flex items-center gap-1">
-                    Bonus ATK
-                    <input type="number" min={0} className="input input-bordered input-xs w-14" value={e.attackBonus}
-                      onChange={(ev) => updateEnemy(e.id, { attackBonus: Number(ev.target.value) })} />
+                    {t("combat.setup.atkBonusLabel")}
+                    <input
+                      type="number"
+                      min={0}
+                      className="input input-xs input-bordered w-14"
+                      value={e.attackBonus}
+                      onChange={(ev) => updateEnemy(e.id, { attackBonus: Number(ev.target.value) })}
+                    />
                   </label>
                 </div>
               </div>
             </div>
           ))}
           {enemies.length < 5 && (
-            <button className="btn btn-outline btn-sm" onClick={addEnemy}>+ Ajouter adversaire</button>
+            <button className="btn btn-outline btn-sm" onClick={addEnemy}>
+              {t("combat.setup.addEnemyBtn")}
+            </button>
           )}
           <button className="btn btn-error w-full" disabled={busy} onClick={startCombat}>
-            ⚔️ Démarrer le combat
+            {t("combat.setup.startBtn")}
           </button>
         </div>
       )}
@@ -353,15 +494,29 @@ export function CombatPage() {
       {/* ── ONGOING ── */}
       {status === "ongoing" && (
         <div className="flex flex-col gap-4">
-          <div className="text-sm text-base-content/60">Tour {turn} · {activeEnemies.length} adversaire(s) actif(s)</div>
+          <div className="text-sm text-base-content/60">
+            {t("combat.ongoing.turnInfo", { turn, count: activeEnemies.length })}
+          </div>
 
           {/* Current dice display */}
           <div className="card bg-base-200">
             <div className="card-body gap-2 p-3">
-              <div className="font-semibold text-sm">Votre dernier jet : {playerRolls[0]}+{playerRolls[1]}={playerRolls[0]+playerRolls[1]} (DEX {char.dexterity})</div>
+              <div className="text-sm font-semibold">
+                {t("combat.ongoing.lastRoll", {
+                  d1: playerRolls[0],
+                  d2: playerRolls[1],
+                  total: playerRolls[0] + playerRolls[1],
+                  dex: char.dexterity,
+                })}
+              </div>
               <div className="flex gap-2">
                 {playerRolls.map((v, i) => (
-                  <div key={i} className="flex h-10 w-10 items-center justify-center rounded border-2 border-base-300 bg-base-100 text-lg font-bold">{v}</div>
+                  <div
+                    key={i}
+                    className="flex h-10 w-10 items-center justify-center rounded border-2 border-base-300 bg-base-100 text-lg font-bold"
+                  >
+                    {v}
+                  </div>
                 ))}
               </div>
               <RerollButton onReroll={handleRerollPlayerAttack} />
@@ -374,20 +529,46 @@ export function CombatPage() {
               <div className="card-body gap-2 p-3">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">{e.name}</span>
-                  <span className="text-sm">❤️ {e.hpCurrent}/{e.hpMax}</span>
+                  <span className="text-sm">
+                    ❤️ {e.hpCurrent}/{e.hpMax}
+                  </span>
                 </div>
-                <progress className="progress progress-error w-full" value={e.hpCurrent} max={e.hpMax} />
+                <progress
+                  className="progress progress-error w-full"
+                  value={e.hpCurrent}
+                  max={e.hpMax}
+                />
                 <div className="flex gap-2">
-                  <button className="btn btn-primary btn-sm flex-1" disabled={busy} onClick={() => playerAttack(e.id)}>
-                    🗡️ Attaquer
+                  <button
+                    className="btn btn-primary btn-sm flex-1"
+                    disabled={busy}
+                    onClick={() => playerAttack(e.id)}
+                  >
+                    {t("combat.ongoing.attackBtn")}
                   </button>
-                  <button className="btn btn-warning btn-sm flex-1" disabled={busy} onClick={() => enemyAttack(e)}>
-                    🛡️ {e.name} attaque
+                  <button
+                    className="btn btn-warning btn-sm flex-1"
+                    disabled={busy}
+                    onClick={() => enemyAttack(e)}
+                  >
+                    {t("combat.ongoing.enemyAttackBtn", { name: e.name })}
                   </button>
                 </div>
                 <div className="flex gap-2">
-                  <button className="btn btn-ghost btn-xs" onClick={() => updateEnemy(e.id, { hpCurrent: Math.max(0, e.hpCurrent - 1) })}>−1 PV ennemi</button>
-                  <button className="btn btn-ghost btn-xs" onClick={() => updateEnemy(e.id, { hpCurrent: Math.min(e.hpMax, e.hpCurrent + 1) })}>+1 PV ennemi</button>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => updateEnemy(e.id, { hpCurrent: Math.max(0, e.hpCurrent - 1) })}
+                  >
+                    {t("combat.ongoing.enemyHpMinus")}
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() =>
+                      updateEnemy(e.id, { hpCurrent: Math.min(e.hpMax, e.hpCurrent + 1) })
+                    }
+                  >
+                    {t("combat.ongoing.enemyHpPlus")}
+                  </button>
                 </div>
               </div>
             </div>
@@ -396,11 +577,18 @@ export function CombatPage() {
           {/* Chance */}
           <div className="card bg-base-200">
             <div className="card-body gap-2 p-3">
-              <div className="text-sm font-semibold">🍀 Utiliser la chance ({char.luck} restant)</div>
-              <div className="flex gap-2 flex-wrap">
-                {[1,2,3,4,5,6].map((val) => (
-                  <button key={val} className="btn btn-outline btn-xs" disabled={busy || char.luck < Math.max(0, val - playerRolls[0])} onClick={() => spendLuck(val, 0)}>
-                    Dé1→{val}
+              <div className="text-sm font-semibold">
+                {t("combat.ongoing.luckSection", { luck: char.luck })}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4, 5, 6].map((val) => (
+                  <button
+                    key={val}
+                    className="btn btn-outline btn-xs"
+                    disabled={busy || char.luck < Math.max(0, val - playerRolls[0])}
+                    onClick={() => spendLuck(val, 0)}
+                  >
+                    {t("combat.ongoing.diceTo", { val })}
                   </button>
                 ))}
               </div>
@@ -414,12 +602,14 @@ export function CombatPage() {
         <div className={`alert ${status === "victory" ? "alert-success" : "alert-error"} mb-4`}>
           <div>
             <div className="text-lg font-bold">
-              {status === "victory" ? "🏆 Victoire !" : "💀 Défaite — PV à 0"}
+              {status === "victory" ? t("combat.result.victory") : t("combat.result.defeat")}
             </div>
             <div className="text-sm">
-              {status === "defeat" && party?.mode !== GameMode.MORTAL &&
-                "Vous pouvez restaurer une sauvegarde depuis le tableau de bord."}
-              {rerolls.length > 0 && ` ${rerolls.length} relance(s) effectuée(s).`}
+              {status === "defeat" &&
+                party?.mode !== GameMode.MORTAL &&
+                t("combat.result.restoreHint")}
+              {rerolls.length > 0 &&
+                ` ${t("combat.result.rerollCount", { count: rerolls.length })}`}
             </div>
           </div>
         </div>
@@ -427,18 +617,18 @@ export function CombatPage() {
 
       {/* ── END : mort mortelle ── */}
       {status === "mortal_death" && (
-        <MortalDeathScreen
-          partyName={party?.name ?? ""}
-          onConfirm={() => navigate("/")}
-        />
+        <MortalDeathScreen partyName={party?.name ?? ""} onConfirm={() => navigate("/")} />
       )}
 
       {/* Combat log */}
       {combatLog.length > 0 && status !== "mortal_death" && (
         <div className="mt-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
-          <div className="text-xs font-semibold text-base-content/50">Journal combat</div>
+          <div className="text-xs font-semibold text-base-content/50">{t("combat.log.title")}</div>
           {combatLog.map((entry, i) => (
-            <div key={i} className={`rounded px-2 py-1 text-xs ${entry.success ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
+            <div
+              key={i}
+              className={`rounded px-2 py-1 text-xs ${entry.success ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}
+            >
               {entry.label}
             </div>
           ))}
@@ -446,8 +636,11 @@ export function CombatPage() {
       )}
 
       {(status === "victory" || status === "defeat") && (
-        <button className="btn btn-primary mt-4 w-full" onClick={() => navigate(`/party/${partyId}`)}>
-          Retour au tableau de bord
+        <button
+          className="btn btn-primary mt-4 w-full"
+          onClick={() => navigate(`/party/${partyId}`)}
+        >
+          {t("combat.result.backBtn")}
         </button>
       )}
     </div>

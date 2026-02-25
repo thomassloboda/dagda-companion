@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GameMode, Talent, TALENT_LABELS } from "../../domain/models";
+import { useTranslation } from "react-i18next";
+import { GameMode, Talent } from "../../domain/models";
 import { rng } from "../../application/container";
 import type { CreatePartyInput } from "../../application/use-cases/CreatePartyUseCase";
 
@@ -18,31 +19,13 @@ interface WizardState {
   luckDice: number; // 1d6
 }
 
-// ─── Step helpers ──────────────────────────────────────────────────────────────
-
-const MODE_OPTIONS = [
-  {
-    value: GameMode.NARRATIVE,
-    label: "Narratif",
-    desc: "Pas de combat. Idéal pour explorer l'histoire.",
-  },
-  {
-    value: GameMode.SIMPLIFIED,
-    label: "Simplifié",
-    desc: "Combat simplifié, une seule sauvegarde restaurable.",
-  },
-  {
-    value: GameMode.MORTAL,
-    label: "Mortel",
-    desc: "Si vous mourez, reset complet. Haut risque.",
-  },
-];
-
+const MODE_VALUES = [GameMode.NARRATIVE, GameMode.SIMPLIFIED, GameMode.MORTAL] as const;
 const STEPS: Step[] = ["mode", "talent", "stats"];
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function CreatePartyPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("mode");
   const [state, setState] = useState<WizardState>({
@@ -86,10 +69,6 @@ export function CreatePartyPage() {
         talent: state.talent,
         characterName: state.characterName.trim() || state.partyName.trim(),
       };
-      // Override RNG with wizard rolls via a mock — use the pre-rolled values
-      // We call createParty.execute but we need to provide our pre-rolled dice.
-      // Since the use case calls rng internally, we'll re-roll but store wizard values separately.
-      // For now, use the wizard rolls by directly calling domain logic.
       const { createCharacter } = await import("../../domain/rules/character");
       const { PartyStatus } = await import("../../domain/models");
       const character = createCharacter({
@@ -98,9 +77,8 @@ export function CreatePartyPage() {
         hpRoll: hpRoll,
         luckRoll: state.luckDice,
       });
-      const { partyRepo, eventLog, outboxRepo, clock } = await import(
-        "../../application/container"
-      );
+      const { partyRepo, eventLog, outboxRepo, clock } =
+        await import("../../application/container");
       const { TimelineEventType, OutboxStatus } = await import("../../domain/models");
       const now = clock.now();
       const id = crypto.randomUUID();
@@ -119,7 +97,10 @@ export function CreatePartyPage() {
         id: crypto.randomUUID(),
         partyId: id,
         type: TimelineEventType.PARTY_CREATED,
-        label: `Partie "${input.name}" créée (mode ${input.mode})`,
+        label: t("createParty.createdLabel", {
+          name: input.name,
+          mode: t(`createParty.modes.${input.mode}.label`),
+        }),
         payload: { mode: input.mode, talent: input.talent, hpRoll, luckRoll: state.luckDice },
         createdAt: now,
       });
@@ -142,9 +123,9 @@ export function CreatePartyPage() {
     <div className="mx-auto max-w-lg p-4">
       {/* Progress */}
       <ul className="steps steps-horizontal mb-6 w-full text-xs">
-        {["Mode", "Talent", "Stats"].map((label, i) => (
-          <li key={label} className={`step ${i <= stepIdx ? "step-primary" : ""}`}>
-            {label}
+        {(["mode", "talent", "stats"] as const).map((s, i) => (
+          <li key={s} className={`step ${i <= stepIdx ? "step-primary" : ""}`}>
+            {t(`createParty.steps.${s}`)}
           </li>
         ))}
       </ul>
@@ -152,23 +133,23 @@ export function CreatePartyPage() {
       {/* ── STEP 1: Mode ── */}
       {step === "mode" && (
         <div className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Nom de la partie</h2>
+          <h2 className="text-xl font-bold">{t("createParty.partyNameTitle")}</h2>
           <input
             type="text"
-            placeholder="Ex : Aventure de Riann"
+            placeholder={t("createParty.partyNamePlaceholder")}
             className="input input-bordered w-full"
             value={state.partyName}
             maxLength={40}
             onChange={(e) => setState((s) => ({ ...s, partyName: e.target.value }))}
           />
 
-          <h2 className="text-xl font-bold">Mode de jeu</h2>
+          <h2 className="text-xl font-bold">{t("createParty.gameModeTitle")}</h2>
           <div className="flex flex-col gap-3">
-            {MODE_OPTIONS.map((opt) => (
+            {MODE_VALUES.map((value) => (
               <label
-                key={opt.value}
+                key={value}
                 className={`card cursor-pointer border-2 transition ${
-                  state.mode === opt.value
+                  state.mode === value
                     ? "border-primary bg-primary/10"
                     : "border-base-300 bg-base-200"
                 }`}
@@ -177,13 +158,15 @@ export function CreatePartyPage() {
                   <input
                     type="radio"
                     name="mode"
-                    className="radio radio-primary mt-1"
-                    checked={state.mode === opt.value}
-                    onChange={() => setState((s) => ({ ...s, mode: opt.value }))}
+                    className="radio-primary radio mt-1"
+                    checked={state.mode === value}
+                    onChange={() => setState((s) => ({ ...s, mode: value }))}
                   />
                   <div>
-                    <div className="font-semibold">{opt.label}</div>
-                    <div className="text-sm text-base-content/60">{opt.desc}</div>
+                    <div className="font-semibold">{t(`createParty.modes.${value}.label`)}</div>
+                    <div className="text-sm text-base-content/60">
+                      {t(`createParty.modes.${value}.desc`)}
+                    </div>
                   </div>
                 </div>
               </label>
@@ -193,19 +176,20 @@ export function CreatePartyPage() {
           {/* Aide modes */}
           <div className="collapse collapse-arrow bg-base-200">
             <input type="checkbox" />
-            <div className="collapse-title font-medium">Aide – Modes de jeu</div>
+            <div className="collapse-title font-medium">{t("createParty.helpModes")}</div>
             <div className="collapse-content text-sm text-base-content/70">
               <ul className="list-disc space-y-1 pl-4">
                 <li>
-                  <strong>Narratif</strong> : combat optionnel, sauvegardes libres.
+                  <strong>{t("createParty.modes.NARRATIVE.label")}</strong> :{" "}
+                  {t("createParty.modeHelp.narrativeDesc")}
                 </li>
                 <li>
-                  <strong>Simplifié</strong> : combat allégé (≤5 adversaires → victoire auto).
-                  Seule la sauvegarde la plus récente est restaurable.
+                  <strong>{t("createParty.modes.SIMPLIFIED.label")}</strong> :{" "}
+                  {t("createParty.modeHelp.simplifiedDesc")}
                 </li>
                 <li>
-                  <strong>Mortel</strong> : si PV = 0 → reset (ch.1, PV max, inventaire vidé,
-                  chance conservée).
+                  <strong>{t("createParty.modes.MORTAL.label")}</strong> :{" "}
+                  {t("createParty.modeHelp.mortalDesc")}
                 </li>
               </ul>
             </div>
@@ -216,13 +200,13 @@ export function CreatePartyPage() {
       {/* ── STEP 2: Talent ── */}
       {step === "talent" && (
         <div className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Choisissez votre talent</h2>
+          <h2 className="text-xl font-bold">{t("createParty.chooseTalent")}</h2>
           <div className="flex flex-col gap-2">
-            {Object.values(Talent).map((t) => (
+            {Object.values(Talent).map((talent) => (
               <label
-                key={t}
+                key={talent}
                 className={`card cursor-pointer border-2 transition ${
-                  state.talent === t
+                  state.talent === talent
                     ? "border-primary bg-primary/10"
                     : "border-base-300 bg-base-200"
                 }`}
@@ -231,11 +215,11 @@ export function CreatePartyPage() {
                   <input
                     type="radio"
                     name="talent"
-                    className="radio radio-primary"
-                    checked={state.talent === t}
-                    onChange={() => setState((s) => ({ ...s, talent: t }))}
+                    className="radio-primary radio"
+                    checked={state.talent === talent}
+                    onChange={() => setState((s) => ({ ...s, talent }))}
                   />
-                  <span className="font-medium">{TALENT_LABELS[t]}</span>
+                  <span className="font-medium">{t(`talents.${talent}`)}</span>
                 </div>
               </label>
             ))}
@@ -244,31 +228,16 @@ export function CreatePartyPage() {
           {/* Aide talents */}
           <div className="collapse collapse-arrow bg-base-200">
             <input type="checkbox" />
-            <div className="collapse-title font-medium">Aide – Talents</div>
+            <div className="collapse-title font-medium">{t("createParty.helpTalents")}</div>
             <div className="collapse-content text-sm text-base-content/70">
-              <p>Chaque talent offre un avantage narratif ou mécanique dans certaines situations :</p>
+              <p>{t("createParty.talentHelpIntro")}</p>
               <ul className="mt-2 list-disc space-y-1 pl-4">
-                <li>
-                  <strong>Instinct</strong> : réactions rapides, éviter les pièges.
-                </li>
-                <li>
-                  <strong>Herboristerie</strong> : préparer ou identifier des plantes/remèdes.
-                </li>
-                <li>
-                  <strong>Discrétion</strong> : se faufiler sans être vu.
-                </li>
-                <li>
-                  <strong>Persuasion</strong> : convaincre PNJ, négocier.
-                </li>
-                <li>
-                  <strong>Observation</strong> : détecter détails cachés, indices.
-                </li>
-                <li>
-                  <strong>Tour de main</strong> : manipuler objets avec dextérité.
-                </li>
-                <li>
-                  <strong>Pratique de l'empathie</strong> : lire les émotions, créer du lien.
-                </li>
+                {Object.values(Talent).map((talent) => (
+                  <li key={talent}>
+                    <strong>{t(`talents.${talent}`)}</strong> :{" "}
+                    {t(`createParty.talentHelp.${talent}`)}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -278,10 +247,10 @@ export function CreatePartyPage() {
       {/* ── STEP 3: Stats ── */}
       {step === "stats" && (
         <div className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold">Votre personnage</h2>
+          <h2 className="text-xl font-bold">{t("createParty.characterTitle")}</h2>
           <input
             type="text"
-            placeholder="Nom du personnage"
+            placeholder={t("createParty.characterNamePlaceholder")}
             className="input input-bordered w-full"
             value={state.characterName}
             maxLength={40}
@@ -290,36 +259,37 @@ export function CreatePartyPage() {
 
           <div className="card bg-base-200">
             <div className="card-body gap-3 p-4">
-              <h3 className="font-semibold">Caractéristiques initiales</h3>
+              <h3 className="font-semibold">{t("createParty.initialStats")}</h3>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  PV max (2d6 × 4) :{" "}
+                  {t("createParty.hpMaxLabel")} :{" "}
                   <span className="font-bold text-success">
-                    {state.hpDice[0]}+{state.hpDice[1]}={hpRoll} → {hpMax} PV
+                    {t("createParty.hpRollDisplay", {
+                      d1: state.hpDice[0],
+                      d2: state.hpDice[1],
+                      roll: hpRoll,
+                      hpMax,
+                    })}
                   </span>
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  Chance (1d6) :{" "}
+                  {t("createParty.luckLabel")} :{" "}
                   <span className="font-bold text-warning">{state.luckDice}</span>
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-sm">
-                  Dextérité : <span className="font-bold">7</span>
+                  {t("createParty.dexterityLabel")} : <span className="font-bold">7</span>
                 </span>
               </div>
 
-              <button
-                type="button"
-                className="btn btn-outline btn-sm w-full"
-                onClick={rerollStats}
-              >
-                🎲 Relancer les dés
+              <button type="button" className="btn btn-outline btn-sm w-full" onClick={rerollStats}>
+                {t("createParty.rerollBtn")}
               </button>
             </div>
           </div>
@@ -327,17 +297,20 @@ export function CreatePartyPage() {
           {/* Aide stats */}
           <div className="collapse collapse-arrow bg-base-200">
             <input type="checkbox" />
-            <div className="collapse-title font-medium">Aide – Règles des caractéristiques</div>
+            <div className="collapse-title font-medium">{t("createParty.helpStats")}</div>
             <div className="collapse-content text-sm text-base-content/70">
               <ul className="list-disc space-y-1 pl-4">
                 <li>
-                  <strong>PV max</strong> = somme de 2d6 × 4. Vous commencez avec tous vos PV.
+                  <strong>{t("createParty.hpMaxLabel").split(" (")[0]}</strong> ={" "}
+                  {t("createParty.statsHelp.hpMax")}
                 </li>
                 <li>
-                  <strong>Chance</strong> = 1d6. Permet d'ajuster un dé en combat (coût = delta).
+                  <strong>{t("createParty.luckLabel").split(" (")[0]}</strong> ={" "}
+                  {t("createParty.statsHelp.luck")}
                 </li>
                 <li>
-                  <strong>Dextérité</strong> = 7 (fixe). Utilisée pour toucher en combat (2d6 ≤ DEX).
+                  <strong>{t("createParty.dexterityLabel")}</strong> ={" "}
+                  {t("createParty.statsHelp.dexterity")}
                 </li>
               </ul>
             </div>
@@ -350,11 +323,8 @@ export function CreatePartyPage() {
       {/* Navigation */}
       <div className="mt-6 flex gap-3">
         {stepIdx > 0 && (
-          <button
-            className="btn btn-outline flex-1"
-            onClick={() => setStep(STEPS[stepIdx - 1])}
-          >
-            ← Précédent
+          <button className="btn btn-outline flex-1" onClick={() => setStep(STEPS[stepIdx - 1])}>
+            {t("createParty.prev")}
           </button>
         )}
 
@@ -364,7 +334,7 @@ export function CreatePartyPage() {
             disabled={!canNext()}
             onClick={() => setStep(STEPS[stepIdx + 1])}
           >
-            Suivant →
+            {t("createParty.next")}
           </button>
         ) : (
           <button
@@ -372,7 +342,7 @@ export function CreatePartyPage() {
             disabled={!canNext() || creating}
             onClick={handleCreate}
           >
-            {creating ? <span className="loading loading-spinner" /> : "Créer la partie ✓"}
+            {creating ? <span className="loading loading-spinner" /> : t("createParty.create")}
           </button>
         )}
       </div>
