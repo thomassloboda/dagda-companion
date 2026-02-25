@@ -7,7 +7,7 @@ export function createInitialInventory(): Inventory {
   return {
     weapons: [],
     items: [],
-    currency: { gold: 0, silver: 0, copper: 0 },
+    currency: { boulons: 0 },
   };
 }
 

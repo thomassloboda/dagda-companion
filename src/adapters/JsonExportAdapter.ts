@@ -35,6 +35,8 @@ export class JsonExportAdapter implements ExportPort, ImportPort {
       `Chance : ${char.luck}`,
       `Dextérité : ${char.dexterity}`,
       ``,
+      `Armes : ${char.inventory.weapons.map((w) => `${w.name}${w.bonus ? ` (+${w.bonus})` : ""}`).join(", ") || "aucune"}`,
+      `Boulons : ${char.inventory.currency.boulons}`,
       `Sauvegardes : ${snapshot.saveSlots.length} / 3`,
       `Notes : ${snapshot.notes.length}`,
       ``,

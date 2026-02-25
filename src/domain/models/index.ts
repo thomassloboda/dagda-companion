@@ -79,9 +79,7 @@ export interface Item {
 }
 
 export interface Currency {
-  gold: number;
-  silver: number;
-  copper: number;
+  boulons: number;
 }
 
 export interface Inventory {

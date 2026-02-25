@@ -66,7 +66,7 @@ export function DashboardPage() {
   // ── Inventory local form state ─────────────────────────────────────────────
   const [weaponForm, setWeaponForm] = useState({ name: "", bonus: 0, description: "" });
   const [itemForm, setItemForm] = useState({ name: "", quantity: 1, description: "" });
-  const [currency, setCurrency] = useState({ gold: 0, silver: 0, copper: 0 });
+  const [currency, setCurrency] = useState({ boulons: 0 });
 
   const load = useCallback(async () => {
     if (!partyId) return;
@@ -79,7 +79,7 @@ export function DashboardPage() {
     if (!p) { navigate("/"); return; }
     setParty(p);
     setPendingChapter(p.currentChapter);
-    setCurrency(p.character.inventory.currency);
+    setCurrency({ boulons: p.character.inventory.currency.boulons ?? 0 });
     setNotes(n);
     setSlots(s);
     setTimeline(t);
@@ -601,24 +601,18 @@ export function DashboardPage() {
 
             {/* ── Monnaie ── */}
             <section>
-              <h3 className="mb-2 font-semibold">💰 Monnaie</h3>
-              <div className="flex gap-3">
-                {(["gold", "silver", "copper"] as const).map((coin) => (
-                  <label key={coin} className="flex flex-1 flex-col items-center gap-1 text-xs">
-                    <span className="capitalize text-base-content/60">
-                      {coin === "gold" ? "🪙 Or" : coin === "silver" ? "🥈 Argent" : "🟤 Cuivre"}
-                    </span>
-                    <input
-                      type="number"
-                      min={0}
-                      className="input input-bordered input-sm w-full text-center"
-                      value={currency[coin]}
-                      onChange={(e) => setCurrency((c) => ({ ...c, [coin]: Math.max(0, Number(e.target.value)) }))}
-                      onBlur={() => run(saveCurrency)}
-                    />
-                  </label>
-                ))}
-              </div>
+              <h3 className="mb-2 font-semibold">🔩 Boulons</h3>
+              <label className="flex items-center gap-3">
+                <input
+                  type="number"
+                  min={0}
+                  className="input input-bordered input-sm w-32 text-center"
+                  value={currency.boulons}
+                  onChange={(e) => setCurrency({ boulons: Math.max(0, Number(e.target.value)) })}
+                  onBlur={() => run(saveCurrency)}
+                />
+                <span className="text-sm text-base-content/60">boulon(s)</span>
+              </label>
             </section>
 
           </div>

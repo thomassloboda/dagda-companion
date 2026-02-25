@@ -22,14 +22,32 @@ describe("resolveHit", () => {
 });
 
 describe("resolveDamage", () => {
-  it("total = 1 + roll + bonus", () => {
-    const result = resolveDamage(3, 2);
-    expect(result.total).toBe(6);
+  it("sans arme : total = 1 + roll (base + dé)", () => {
+    const result = resolveDamage(3, 0);
+    expect(result.total).toBe(4); // 1 + 3 + 0
   });
 
-  it("minimum 1 + 1 + 0 = 2", () => {
+  it("avec bonus arme +2 : total = 1 + roll + 2", () => {
+    const result = resolveDamage(3, 2);
+    expect(result.total).toBe(6); // 1 + 3 + 2
+    expect(result.weaponBonus).toBe(2);
+  });
+
+  it("bonus arme +5 sur dé max (6) : total = 12", () => {
+    const result = resolveDamage(6, 5);
+    expect(result.total).toBe(12); // 1 + 6 + 5
+  });
+
+  it("minimum absolu sans arme : 1 + 1 + 0 = 2", () => {
     const result = resolveDamage(1, 0);
     expect(result.total).toBe(2);
+  });
+
+  it("le bonus est bien isolé dans weaponBonus", () => {
+    const result = resolveDamage(4, 3);
+    expect(result.roll).toBe(4);
+    expect(result.weaponBonus).toBe(3);
+    expect(result.total).toBe(8); // 1 + 4 + 3
   });
 });
 
