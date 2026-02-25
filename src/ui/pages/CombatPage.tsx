@@ -585,7 +585,9 @@ export function CombatPage() {
                   <button
                     key={val}
                     className="btn btn-outline btn-xs"
-                    disabled={busy || char.luck < Math.max(0, val - playerRolls[0])}
+                    disabled={
+                      busy || val === playerRolls[0] || char.luck < Math.abs(val - playerRolls[0])
+                    }
                     onClick={() => spendLuck(val, 0)}
                   >
                     {t("combat.ongoing.diceTo", { val })}

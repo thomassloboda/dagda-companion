@@ -48,8 +48,8 @@
     "DISCRETION": "Stealth",
     "PERSUASION": "Persuasion",
     "OBSERVATION": "Observation",
-    "SLEIGHT_OF_HAND": "Sleight of Hand",
-    "EMPATHY_PRACTICE": "Empathy"
+    "SLEIGHT_OF_HAND": "Nimble Fingers",
+    "EMPATHY_PRACTICE": "Empractice"
   },
   "home": {
     "title": "My parties",
@@ -172,23 +172,23 @@
       }
     },
     "modeHelp": {
-      "narrativeDesc": "optional combat, free saves.",
-      "simplifiedDesc": "lightweight combat (≤5 enemies → auto victory). Only the most recent save can be restored.",
-      "mortalDesc": "if HP = 0 → reset (ch.1, max HP, inventory cleared, luck kept)."
+      "narrativeDesc": "In this game mode, you won't be bothered by most fights. Your goal is first and foremost to fully experience the adventure and make the decisions that suit you. When a combat is offered to you, you simply choose whether you won it or not. Note: this special rule only applies when facing up to five enemies simultaneously. Beyond that number, you are outnumbered and must play through the combat normally (see the \"COMBAT\" section).",
+      "simplifiedDesc": "In this game mode, all rules apply, but you may save the game up to three times on your CHARACTER SHEET. When saving, note the chapter you are on and write a small \"s\" next to the weapons and items in your INVENTORY that were just saved. You may return to that save whenever you wish. Note: you must always return to your most recent save.",
+      "mortalDesc": "In this game mode, all rules apply... including the one about life. If you die, you lose all your weapons and equipment. You must restart the book from chapter 1."
     },
     "talentHelp": {
-      "INSTINCT": "quick reactions, avoid traps.",
-      "HERBOLOGY": "prepare or identify plants/remedies.",
-      "DISCRETION": "sneak around without being seen.",
-      "PERSUASION": "convince NPCs, negotiate.",
-      "OBSERVATION": "detect hidden details, clues.",
-      "SLEIGHT_OF_HAND": "manipulate objects with dexterity.",
-      "EMPATHY_PRACTICE": "read emotions, build connections."
+      "INSTINCT": "This TALENT lets your senses and intuition speak. An art that bypasses reason to feel out the best decision to make.",
+      "HERBOLOGY": "Plants hold powerful secrets that can serve you in any situation. This TALENT has given you a solid knowledge of this natural magic.",
+      "DISCRETION": "Alone in the middle of a crowd, invisible like a ghost. This TALENT lets you slip past unseen, move without even stirring the air.",
+      "PERSUASION": "Words are a weapon. With this TALENT, you have the ability to convince anyone of anything in just a few sentences — a sharpness of mind that can prevent many conflicts.",
+      "OBSERVATION": "Eyes are bombarded with information every second. This TALENT doesn't let you see further, but rather see what truly matters around you.",
+      "SLEIGHT_OF_HAND": "A true virtuoso of the fingers. This TALENT, once mastered, grants you the skills of a pickpocket, a juggler, a sculptor, and more.",
+      "EMPATHY_PRACTICE": "The most subtle of TALENTS. Based on empathy, empractice literally allows you to feel exactly what another person is feeling, in order to better understand them."
     },
     "statsHelp": {
-      "hpMax": "sum of 2d6 × 4. You start with full HP.",
-      "luck": "1d6. Lets you adjust a die in combat (cost = delta).",
-      "dexterity": "7 (fixed). Used to hit in combat (2d6 ≤ DEX)."
+      "hpMax": "To calculate this value, roll two dice and multiply the result by 4. Write this result on your CHARACTER SHEET. You begin this book with all your HIT POINTS. Your HIT POINTS cannot exceed this maximum value unless explicitly stated otherwise.",
+      "luck": "Your charisma and natural luck are represented by this result. Roll one six-sided die and note the result on your CHARACTER SHEET. This stat works as a pool of points. You may spend LUCK points to change one of your die results during your adventure. Example: to open a door, you need to roll a 5 on a six-sided die. You roll and get a 3. You choose to spend two LUCK points to set your die to 5. Reduce your LUCK on your CHARACTER SHEET by 2.",
+      "dexterity": "This stat is essential for combat. Your dexterity may change over the course of your adventures and learning. For now, as with all Apprentices at the end of their training, your DEXTERITY is 7. Please note it on your CHARACTER SHEET."
     },
     "createdLabel": "Party \"{{name}}\" created (mode {{mode}})"
   },

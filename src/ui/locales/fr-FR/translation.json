@@ -44,12 +44,12 @@
   },
   "talents": {
     "INSTINCT": "Instinct",
-    "HERBOLOGY": "Herboristerie",
+    "HERBOLOGY": "Herbologie",
     "DISCRETION": "Discrétion",
     "PERSUASION": "Persuasion",
     "OBSERVATION": "Observation",
-    "SLEIGHT_OF_HAND": "Tour de main",
-    "EMPATHY_PRACTICE": "Pratique de l'empathie"
+    "SLEIGHT_OF_HAND": "Doigts agiles",
+    "EMPATHY_PRACTICE": "Empratique"
   },
   "home": {
     "title": "Mes parties",
@@ -172,23 +172,23 @@
       }
     },
     "modeHelp": {
-      "narrativeDesc": "combat optionnel, sauvegardes libres.",
-      "simplifiedDesc": "combat allégé (≤5 adversaires → victoire auto). Seule la sauvegarde la plus récente est restaurable.",
-      "mortalDesc": "si PV = 0 → reset (ch.1, PV max, inventaire vidé, chance conservée)."
+      "narrativeDesc": "Dans ce mode de jeu, vous n'allez pas vous encombrer de la plupart des combats. Vous allez chercher avant tout à vivre pleinement l'aventure et à prendre les décisions qui vous conviennent. Lorsqu'un combat vous est proposé, vous choisirez directement si vous l'avez remporté ou non. Attention: cette règle spéciale pour les combats ne s'applique que jusqu'à cinq adversaires à combattre en simultané. Au-delà de ce chiffre, vous êtes en surnombre et vous serez obligé de vivre le combat normalement (voir section « LES COMBATS »).",
+      "simplifiedDesc": "Dans ce mode de jeu, toutes les règles s'appliquent, mais vous avez le droit de sauvegarder le jeu trois fois sur votre FEUILLE DE PERSONNAGE. Lors d'une sauvegarde, notez le chapitre où vous êtes et inscrivez un petit « s » devant les armes et les objets de votre INVENTAIRE venant d'être sauvegardés. Vous pourrez reprendre le jeu à cette sauvegarde quand bon vous semblera. Attention: vous devez toujours reprendre à votre sauvegarde la plus récente.",
+      "mortalDesc": "Dans ce mode de jeu, toutes les règles s'appliquent... y compris celle de la vie. Si vous venez à mourir, vous perdez toutes vos armes ainsi que votre équipement. Vous devez reprendre le livre au chapitre 1."
     },
     "talentHelp": {
-      "INSTINCT": "réactions rapides, éviter les pièges.",
-      "HERBOLOGY": "préparer ou identifier des plantes/remèdes.",
-      "DISCRETION": "se faufiler sans être vu.",
-      "PERSUASION": "convaincre PNJ, négocier.",
-      "OBSERVATION": "détecter détails cachés, indices.",
-      "SLEIGHT_OF_HAND": "manipuler objets avec dextérité.",
-      "EMPATHY_PRACTICE": "lire les émotions, créer du lien."
+      "INSTINCT": "Ce TALENT permet de laisser parler ses sens et son intuition. Un art qui court-circuite la raison pour ressentir quelle est la meilleure décision à prendre.",
+      "HERBOLOGY": "Les plantes renferment de puissants secrets pouvant vous servir en toutes circonstances. Ce TALENT vous a donné une solide connaissance de cette magie naturelle.",
+      "DISCRETION": "Être seul au milieu de la foule, invisible comme un fantôme. Ce TALENT vous permet de vous faufiler sans être vu, de vous déplacer sans même faire bouger l'air.",
+      "PERSUASION": "Les mots sont une arme. Vous possédez avec ce TALENT la capacité, en quelques phrases, de convaincre n'importe qui de n'importe quoi. Une vivacité d'esprit qui peut permettre d'éviter bien des conflits.",
+      "OBSERVATION": "Les yeux sont bombardés d'informations à chaque seconde. Ce TALENT ne vous permet pas de voir plus loin, mais au contraire de voir ce qui compte vraiment autour de vous.",
+      "SLEIGHT_OF_HAND": "Un véritable virtuose des doigts. Ce TALENT, une fois maîtrisé, vous donne des compétences de voleur à la tire, de bateleur, du sculpteur, etc.",
+      "EMPATHY_PRACTICE": "Le plus subtil des TALENTS. Basé sur l'empathie, l'em-pratique vous permet littéralement de ressentir exactement ce que ressent une autre personne pour mieux le comprendre."
     },
     "statsHelp": {
-      "hpMax": "somme de 2d6 × 4. Vous commencez avec tous vos PV.",
-      "luck": "1d6. Permet d'ajuster un dé en combat (coût = delta).",
-      "dexterity": "7 (fixe). Utilisée pour toucher en combat (2d6 ≤ DEX)."
+      "hpMax": "Pour calculer cette valeur, jetez deux dés et multipliez le résultat obtenu par 4. Notez ce résultat sur votre FEUILLE DE PERSONNAGE. Vous commencez ce livre avec tous VOS POINTS DE VIE. Vos POINTS DE VIE ne peuvent pas dépasser cette valeur maximale, sauf indication contraire explicite.",
+      "luck": "Votre charisme et votre chance naturelle seront symbolisés par ce résultat. Jetez un dé à six faces, et notez le résultat sur votre FEUILLE DE PERSONNAGE. Cette caractéristique fonctionne comme une réserve de points. Vous pouvez consommer des points de CHANCE pour modifier un résultat de vos dés au cours de votre aventure. Exemple: pour ouvrir une porte, vous devez faire 5 avec un dé à six faces. Vous jetez le dé et obtenez un 3. Vous choisissez d'utiliser deux de vos points de CHANCE pour régler votre dé sur 5. Vous corrigez votre CHANCE sur votre FEUILLE DE PERSONNAGE en la réduisant de 2.",
+      "dexterity": "Cette caractéristique est essentielle pour les combats. Votre dextérité pourra varier au fil de vos aventures et de vos apprentissages. Pour le moment, comme chez tous les Apprentis à la fin de leur apprentissage, votre DEXTÉRITÉ est de 7. Veuillez le noter sur votre FEUILLE DE PERSONNAGE."
     },
     "createdLabel": "Partie \"{{name}}\" créée (mode {{mode}})"
   },

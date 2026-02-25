@@ -35,14 +35,14 @@ export function resolveDamage(roll1d6: number, weaponBonus: number): DamageResul
   };
 }
 
-/** Luck: augmenter un dé après jet (coût = delta) */
+/** Luck: modifier un dé après jet dans n'importe quelle direction (coût = |delta|) */
 export function applyLuckToDie(
   originalRoll: number,
   targetValue: number,
   availableLuck: number,
 ): { newRoll: number; luckCost: number } | null {
-  if (targetValue <= originalRoll) return null; // pas d'amélioration possible vers le haut
-  const delta = targetValue - originalRoll;
+  if (targetValue === originalRoll) return null; // aucun changement
+  const delta = Math.abs(targetValue - originalRoll);
   if (delta > availableLuck) return null; // pas assez de chance
   return { newRoll: targetValue, luckCost: delta };
 }

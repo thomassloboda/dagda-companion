@@ -52,18 +52,24 @@ describe("resolveDamage", () => {
 });
 
 describe("applyLuckToDie", () => {
-  it("retourne null si la cible n'améliore pas le dé", () => {
-    expect(applyLuckToDie(5, 3, 10)).toBeNull();
+  it("retourne null si la valeur cible est identique", () => {
+    expect(applyLuckToDie(5, 5, 10)).toBeNull();
   });
 
   it("retourne null si pas assez de chance", () => {
     expect(applyLuckToDie(2, 6, 1)).toBeNull();
   });
 
-  it("applique la modification si assez de chance", () => {
+  it("applique une augmentation si assez de chance", () => {
     const result = applyLuckToDie(2, 5, 10);
     expect(result?.newRoll).toBe(5);
     expect(result?.luckCost).toBe(3);
+  });
+
+  it("applique une diminution si assez de chance", () => {
+    const result = applyLuckToDie(5, 3, 10);
+    expect(result?.newRoll).toBe(3);
+    expect(result?.luckCost).toBe(2);
   });
 });
 
