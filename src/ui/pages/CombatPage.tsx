@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { Party, Enemy, CombatLogEntry } from "../../domain/models";
-import { TimelineEventType, OutboxStatus } from "../../domain/models";
+import { TimelineEventType, OutboxStatus, PartyStatus, GameMode } from "../../domain/models";
 import {
   partyRepo,
   rng,
@@ -13,12 +13,28 @@ import {
 } from "../../application/container";
 import { resolveHit, resolveDamage, applyLuckToDie, isVictory, isDefeat } from "../../domain/rules/combat";
 
-type CombatStatus = "setup" | "ongoing" | "victory" | "defeat";
+type CombatStatus = "setup" | "ongoing" | "victory" | "defeat" | "mortal_death";
 
 interface RerollRecord {
   context: string;
   before: number;
   after: number;
+}
+
+function MortalDeathScreen({ partyName, onConfirm }: { partyName: string; onConfirm: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-base-100 p-6 text-center">
+      <div className="text-6xl">☠️</div>
+      <h1 className="text-3xl font-bold text-error">Vous êtes mort.</h1>
+      <p className="max-w-xs text-base-content/70">
+        <span className="font-semibold">{partyName}</span> — L'aventure se termine ici.
+        En mode Mortel, il n'y a pas de retour en arrière.
+      </p>
+      <button className="btn btn-error btn-lg w-full max-w-xs" onClick={onConfirm}>
+        Retour à l'accueil
+      </button>
+    </div>
+  );
 }
 
 function RerollButton({ onReroll }: { onReroll: () => void }) {
@@ -184,9 +200,16 @@ export function CombatPage() {
         turn, actor: enemy.id, roll: rolls, success: true, damage: damage.total,
         label: `Tour ${turn} — ${enemy.name} touche (${rolls.join("+")}=${hit.total}) → ${damage.total} dégâts`,
       };
-      await updateHp.execute(partyId!, -damage.total);
+      const hpResult = await updateHp.execute(partyId!, -damage.total);
       await load();
       await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_ENEMY_HIT, label: logEntry.label, payload: { rolls, damage: damage.total, turn }, createdAt: now });
+
+      if (hpResult.isMortalDeath) {
+        setCombatLog((prev) => [logEntry, ...prev]);
+        setStatus("mortal_death");
+        setBusy(false);
+        return;
+      }
     } else {
       logEntry = {
         turn, actor: enemy.id, roll: rolls, success: false,
@@ -247,9 +270,11 @@ export function CombatPage() {
     if (isVictory(enemies)) {
       setStatus("victory");
       await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_VICTORY, label: "Victoire !", createdAt: now });
+    } else if (updatedParty.status === PartyStatus.DEAD) {
+      // Handled inline in enemyAttack via isMortalDeath
     } else if (isDefeat(updatedParty.character)) {
       setStatus("defeat");
-      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_DEFEAT, label: "Défaite…", createdAt: now });
+      await eventLog.append({ id: crypto.randomUUID(), partyId: partyId!, type: TimelineEventType.COMBAT_DEFEAT, label: "Défaite — PV à 0.", createdAt: now });
     }
   }
 
@@ -381,18 +406,32 @@ export function CombatPage() {
         </div>
       )}
 
-      {/* ── END ── */}
+      {/* ── END : victoire / défaite normale ── */}
       {(status === "victory" || status === "defeat") && (
         <div className={`alert ${status === "victory" ? "alert-success" : "alert-error"} mb-4`}>
           <div>
-            <div className="text-lg font-bold">{status === "victory" ? "🏆 Victoire !" : "💀 Défaite…"}</div>
-            <div className="text-sm">{rerolls.length > 0 && `${rerolls.length} relance(s) effectuée(s).`}</div>
+            <div className="text-lg font-bold">
+              {status === "victory" ? "🏆 Victoire !" : "💀 Défaite — PV à 0"}
+            </div>
+            <div className="text-sm">
+              {status === "defeat" && party?.mode !== GameMode.MORTAL &&
+                "Vous pouvez restaurer une sauvegarde depuis le tableau de bord."}
+              {rerolls.length > 0 && ` ${rerolls.length} relance(s) effectuée(s).`}
+            </div>
           </div>
         </div>
       )}
 
+      {/* ── END : mort mortelle ── */}
+      {status === "mortal_death" && (
+        <MortalDeathScreen
+          partyName={party?.name ?? ""}
+          onConfirm={() => navigate("/")}
+        />
+      )}
+
       {/* Combat log */}
-      {combatLog.length > 0 && (
+      {combatLog.length > 0 && status !== "mortal_death" && (
         <div className="mt-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
           <div className="text-xs font-semibold text-base-content/50">Journal combat</div>
           {combatLog.map((entry, i) => (

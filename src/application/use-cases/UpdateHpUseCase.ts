@@ -1,6 +1,13 @@
 import type { PartyRepositoryPort, EventLogPort, OutboxPort, ClockPort } from "../../ports";
-import { applyHpChange, isDead, applyDeathReset } from "../../domain/rules/character";
+import { applyHpChange, isDead } from "../../domain/rules/character";
 import { TimelineEventType, OutboxStatus, GameMode, PartyStatus } from "../../domain/models";
+
+export interface UpdateHpResult {
+  /** true si PV = 0 (quelle que soit le mode) */
+  isDead: boolean;
+  /** true uniquement en mode MORTAL quand PV = 0 → partie terminée définitivement */
+  isMortalDeath: boolean;
+}
 
 export class UpdateHpUseCase {
   constructor(
@@ -10,7 +17,7 @@ export class UpdateHpUseCase {
     private readonly clock: ClockPort,
   ) {}
 
-  async execute(partyId: string, delta: number): Promise<void> {
+  async execute(partyId: string, delta: number): Promise<UpdateHpResult> {
     const party = await this.partyRepo.findById(partyId);
     if (!party) throw new Error(`Partie ${partyId} introuvable.`);
     const now = this.clock.now();
@@ -27,21 +34,18 @@ export class UpdateHpUseCase {
       createdAt: now,
     });
 
-    // Death in MORTAL mode
-    if (isDead(newChar) && party.mode === GameMode.MORTAL) {
-      const resetChar = applyDeathReset(newChar);
-      updated = {
-        ...updated,
-        character: resetChar,
-        currentChapter: 1,
-        status: PartyStatus.ACTIVE,
-      };
+    const dead = isDead(newChar);
+    const isMortalDeath = dead && party.mode === GameMode.MORTAL;
+
+    if (isMortalDeath) {
+      // Mode MORTAL : fin de partie définitive, PV restent à 0
+      updated = { ...updated, status: PartyStatus.DEAD };
       await this.eventLog.append({
         id: crypto.randomUUID(),
         partyId,
         type: TimelineEventType.DEATH_RESET,
-        label: "Mort — reset mortel (chapitre 1, PV max, inventaire vidé)",
-        payload: { chapter: 1 },
+        label: "☠️ Mort définitive — l'aventure se termine.",
+        payload: {},
         createdAt: now,
       });
       await this.outbox.append({
@@ -55,5 +59,6 @@ export class UpdateHpUseCase {
     }
 
     await this.partyRepo.save(updated);
+    return { isDead: dead, isMortalDeath };
   }
 }

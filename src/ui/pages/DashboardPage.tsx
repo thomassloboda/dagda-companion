@@ -130,8 +130,8 @@ export function DashboardPage() {
 
           {/* HP controls */}
           <div className="flex gap-2">
-            <button className="btn btn-error btn-sm flex-1" disabled={busy} onClick={() => run(() => updateHp.execute(partyId!, -1))}>−1 PV</button>
-            <button className="btn btn-success btn-sm flex-1" disabled={busy} onClick={() => run(() => updateHp.execute(partyId!, 1))}>+1 PV</button>
+            <button className="btn btn-error btn-sm flex-1" disabled={busy} onClick={() => run(async () => { await updateHp.execute(partyId!, -1); })}>−1 PV</button>
+            <button className="btn btn-success btn-sm flex-1" disabled={busy} onClick={() => run(async () => { await updateHp.execute(partyId!, 1); })}>+1 PV</button>
           </div>
 
           {/* Chapter */}
