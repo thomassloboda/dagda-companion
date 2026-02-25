@@ -92,6 +92,7 @@ export function DashboardPage() {
   }
 
   const char = party.character;
+  const readonly = party.status !== PartyStatus.ACTIVE;
   const hpPct = Math.round((char.hpCurrent / char.hpMax) * 100);
   const hpColor =
     hpPct > 50 ? "progress-success" : hpPct > 25 ? "progress-warning" : "progress-error";
@@ -135,6 +136,15 @@ export function DashboardPage() {
         </div>
       </div>
 
+      {/* Read-only banner */}
+      {readonly && (
+        <div className="alert alert-warning mb-4 text-sm">
+          {party.status === PartyStatus.DEAD
+            ? t("dashboard.readonlyBannerDead")
+            : t("dashboard.readonlyBannerFinished")}
+        </div>
+      )}
+
       {/* Stats card */}
       <div className="card mb-4 bg-base-200 shadow">
         <div className="card-body gap-3 p-4">
@@ -150,88 +160,96 @@ export function DashboardPage() {
           />
 
           {/* HP controls */}
-          <div className="flex gap-2">
-            <button
-              className="btn btn-error btn-sm flex-1"
-              disabled={busy}
-              onClick={() =>
-                run(async () => {
-                  await updateHp.execute(partyId!, -1);
-                })
-              }
-            >
-              {t("dashboard.hpMinus")}
-            </button>
-            <button
-              className="btn btn-success btn-sm flex-1"
-              disabled={busy}
-              onClick={() =>
-                run(async () => {
-                  await updateHp.execute(partyId!, 1);
-                })
-              }
-            >
-              {t("dashboard.hpPlus")}
-            </button>
-          </div>
+          {!readonly && (
+            <div className="flex gap-2">
+              <button
+                className="btn btn-error btn-sm flex-1"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    await updateHp.execute(partyId!, -1);
+                  })
+                }
+              >
+                {t("dashboard.hpMinus")}
+              </button>
+              <button
+                className="btn btn-success btn-sm flex-1"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    await updateHp.execute(partyId!, 1);
+                  })
+                }
+              >
+                {t("dashboard.hpPlus")}
+              </button>
+            </div>
+          )}
 
           {/* Chapter */}
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <button
-                className="btn btn-outline btn-xs"
-                disabled={busy}
-                onClick={() => setPendingChapter((v) => Math.max(1, v - 1))}
-              >
-                −
-              </button>
-              <input
-                type="number"
-                min={1}
-                className="input input-sm input-bordered flex-1 text-center"
-                value={pendingChapter}
-                onChange={(e) => setPendingChapter(Math.max(1, Number(e.target.value) || 1))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && pendingChapter !== party.currentChapter) {
-                    run(() => updateChapter.execute(partyId!, pendingChapter));
-                  }
-                }}
-              />
-              <button
-                className="btn btn-outline btn-xs"
-                disabled={busy}
-                onClick={() => setPendingChapter((v) => v + 1)}
-              >
-                +
-              </button>
-              <span className="text-sm text-base-content/60">
-                {t("dashboard.chapterCurrent", { chapter: party.currentChapter })}
-              </span>
-            </div>
-            {pendingChapter !== party.currentChapter && (
+          {!readonly ? (
+            <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-base-content/50">
-                  {t("dashboard.chapterPending", {
-                    from: party.currentChapter,
-                    to: pendingChapter,
-                  })}
-                </span>
                 <button
-                  className="btn btn-success btn-xs flex-1"
+                  className="btn btn-outline btn-xs"
                   disabled={busy}
-                  onClick={() => run(() => updateChapter.execute(partyId!, pendingChapter))}
+                  onClick={() => setPendingChapter((v) => Math.max(1, v - 1))}
                 >
-                  {t("dashboard.chapterConfirm")}
+                  −
                 </button>
+                <input
+                  type="number"
+                  min={1}
+                  className="input input-sm input-bordered flex-1 text-center"
+                  value={pendingChapter}
+                  onChange={(e) => setPendingChapter(Math.max(1, Number(e.target.value) || 1))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && pendingChapter !== party.currentChapter) {
+                      run(() => updateChapter.execute(partyId!, pendingChapter));
+                    }
+                  }}
+                />
                 <button
-                  className="btn btn-ghost btn-xs"
-                  onClick={() => setPendingChapter(party.currentChapter)}
+                  className="btn btn-outline btn-xs"
+                  disabled={busy}
+                  onClick={() => setPendingChapter((v) => v + 1)}
                 >
-                  ✕
+                  +
                 </button>
+                <span className="text-sm text-base-content/60">
+                  {t("dashboard.chapterCurrent", { chapter: party.currentChapter })}
+                </span>
               </div>
-            )}
-          </div>
+              {pendingChapter !== party.currentChapter && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-base-content/50">
+                    {t("dashboard.chapterPending", {
+                      from: party.currentChapter,
+                      to: pendingChapter,
+                    })}
+                  </span>
+                  <button
+                    className="btn btn-success btn-xs flex-1"
+                    disabled={busy}
+                    onClick={() => run(() => updateChapter.execute(partyId!, pendingChapter))}
+                  >
+                    {t("dashboard.chapterConfirm")}
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => setPendingChapter(party.currentChapter)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-base-content/60">
+              {t("dashboard.chapterCurrent", { chapter: party.currentChapter })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -252,28 +270,30 @@ export function DashboardPage() {
       {/* ── Journal ── */}
       {tab === "journal" && (
         <div className="flex flex-col gap-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="input input-sm input-bordered flex-1"
-              placeholder={t("dashboard.journal.placeholder")}
-              value={customInput}
-              maxLength={100}
-              onChange={(e) => setCustomInput(e.target.value)}
-            />
-            <button
-              className="btn btn-outline btn-sm"
-              disabled={busy || !customInput.trim()}
-              onClick={() =>
-                run(async () => {
-                  await addCustomAction.execute(partyId!, customInput.trim());
-                  setCustomInput("");
-                })
-              }
-            >
-              {t("dashboard.journal.addBtn")}
-            </button>
-          </div>
+          {!readonly && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="input input-sm input-bordered flex-1"
+                placeholder={t("dashboard.journal.placeholder")}
+                value={customInput}
+                maxLength={100}
+                onChange={(e) => setCustomInput(e.target.value)}
+              />
+              <button
+                className="btn btn-outline btn-sm"
+                disabled={busy || !customInput.trim()}
+                onClick={() =>
+                  run(async () => {
+                    await addCustomAction.execute(partyId!, customInput.trim());
+                    setCustomInput("");
+                  })
+                }
+              >
+                {t("dashboard.journal.addBtn")}
+              </button>
+            </div>
+          )}
 
           <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
             {timeline.length === 0 && (
@@ -300,28 +320,30 @@ export function DashboardPage() {
       {/* ── Notes ── */}
       {tab === "notes" && (
         <div className="flex flex-col gap-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="input input-sm input-bordered flex-1"
-              placeholder={t("dashboard.notes.placeholder")}
-              value={noteInput}
-              maxLength={200}
-              onChange={(e) => setNoteInput(e.target.value)}
-            />
-            <button
-              className="btn btn-primary btn-sm"
-              disabled={busy || !noteInput.trim()}
-              onClick={() =>
-                run(async () => {
-                  await addNote.execute(partyId!, noteInput.trim());
-                  setNoteInput("");
-                })
-              }
-            >
-              +
-            </button>
-          </div>
+          {!readonly && (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="input input-sm input-bordered flex-1"
+                placeholder={t("dashboard.notes.placeholder")}
+                value={noteInput}
+                maxLength={200}
+                onChange={(e) => setNoteInput(e.target.value)}
+              />
+              <button
+                className="btn btn-primary btn-sm"
+                disabled={busy || !noteInput.trim()}
+                onClick={() =>
+                  run(async () => {
+                    await addNote.execute(partyId!, noteInput.trim());
+                    setNoteInput("");
+                  })
+                }
+              >
+                +
+              </button>
+            </div>
+          )}
           <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
             {notes.length === 0 && (
               <p className="text-center text-base-content/40">{t("dashboard.notes.empty")}</p>
@@ -388,7 +410,7 @@ export function DashboardPage() {
                     {s && (
                       <button
                         className="btn btn-ghost btn-xs"
-                        disabled={busy || !canRestore}
+                        disabled={busy || !canRestore || readonly}
                         title={!canRestore ? t("dashboard.saves.simplifiedHint") : ""}
                         onClick={() =>
                           run(async () => {
@@ -576,74 +598,78 @@ export function DashboardPage() {
                               </p>
                             )}
                           </div>
-                          <div className="flex shrink-0 gap-1">
-                            {inv.equippedWeaponId !== w.id && (
+                          {!readonly && (
+                            <div className="flex shrink-0 gap-1">
+                              {inv.equippedWeaponId !== w.id && (
+                                <button
+                                  className="btn btn-ghost btn-xs"
+                                  disabled={busy}
+                                  title={t("dashboard.inventory.equipTooltip")}
+                                  onClick={() => run(() => equipWeapon(w.id))}
+                                >
+                                  ✓
+                                </button>
+                              )}
                               <button
-                                className="btn btn-ghost btn-xs"
+                                className="btn btn-ghost btn-xs text-error"
                                 disabled={busy}
-                                title={t("dashboard.inventory.equipTooltip")}
-                                onClick={() => run(() => equipWeapon(w.id))}
+                                onClick={() => run(() => removeWeapon(w.id))}
                               >
-                                ✓
+                                ✕
                               </button>
-                            )}
-                            <button
-                              className="btn btn-ghost btn-xs text-error"
-                              disabled={busy}
-                              onClick={() => run(() => removeWeapon(w.id))}
-                            >
-                              ✕
-                            </button>
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
-                  <p className="mb-2 text-xs font-semibold text-base-content/60">
-                    {t("dashboard.inventory.addWeaponTitle")}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <input
-                      className="input input-sm input-bordered w-full"
-                      placeholder={t("dashboard.inventory.weaponNamePlaceholder")}
-                      value={weaponForm.name}
-                      maxLength={40}
-                      onChange={(e) => setWeaponForm((f) => ({ ...f, name: e.target.value }))}
-                    />
-                    <div className="flex gap-2">
-                      <label className="flex flex-1 items-center gap-1 text-sm">
-                        {t("dashboard.inventory.weaponBonusLabel")}
-                        <input
-                          type="number"
-                          className="input input-xs input-bordered w-16"
-                          value={weaponForm.bonus}
-                          onChange={(e) =>
-                            setWeaponForm((f) => ({ ...f, bonus: Number(e.target.value) }))
-                          }
-                        />
-                      </label>
+                {!readonly && (
+                  <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
+                    <p className="mb-2 text-xs font-semibold text-base-content/60">
+                      {t("dashboard.inventory.addWeaponTitle")}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        className="input input-sm input-bordered w-full"
+                        placeholder={t("dashboard.inventory.weaponNamePlaceholder")}
+                        value={weaponForm.name}
+                        maxLength={40}
+                        onChange={(e) => setWeaponForm((f) => ({ ...f, name: e.target.value }))}
+                      />
+                      <div className="flex gap-2">
+                        <label className="flex flex-1 items-center gap-1 text-sm">
+                          {t("dashboard.inventory.weaponBonusLabel")}
+                          <input
+                            type="number"
+                            className="input input-xs input-bordered w-16"
+                            value={weaponForm.bonus}
+                            onChange={(e) =>
+                              setWeaponForm((f) => ({ ...f, bonus: Number(e.target.value) }))
+                            }
+                          />
+                        </label>
+                      </div>
+                      <input
+                        className="input input-sm input-bordered w-full"
+                        placeholder={t("dashboard.inventory.weaponDescPlaceholder")}
+                        value={weaponForm.description}
+                        maxLength={80}
+                        onChange={(e) =>
+                          setWeaponForm((f) => ({ ...f, description: e.target.value }))
+                        }
+                      />
+                      <button
+                        className="btn btn-primary btn-sm w-full"
+                        disabled={busy || !weaponForm.name.trim()}
+                        onClick={() => run(addWeapon)}
+                      >
+                        {t("common.addBtn")}
+                      </button>
                     </div>
-                    <input
-                      className="input input-sm input-bordered w-full"
-                      placeholder={t("dashboard.inventory.weaponDescPlaceholder")}
-                      value={weaponForm.description}
-                      maxLength={80}
-                      onChange={(e) =>
-                        setWeaponForm((f) => ({ ...f, description: e.target.value }))
-                      }
-                    />
-                    <button
-                      className="btn btn-primary btn-sm w-full"
-                      disabled={busy || !weaponForm.name.trim()}
-                      onClick={() => run(addWeapon)}
-                    >
-                      {t("common.addBtn")}
-                    </button>
                   </div>
-                </div>
+                )}
               </section>
 
               <div className="divider my-0" />
@@ -671,80 +697,90 @@ export function DashboardPage() {
                               </p>
                             )}
                           </div>
-                          <div className="flex shrink-0 items-center gap-1">
-                            <button
-                              className="btn btn-ghost btn-xs"
-                              disabled={busy}
-                              onClick={() => run(() => changeItemQty(it.id, -1))}
-                            >
-                              −
-                            </button>
-                            <span className="w-6 text-center text-sm font-semibold">
-                              {it.quantity}
+                          {!readonly ? (
+                            <div className="flex shrink-0 items-center gap-1">
+                              <button
+                                className="btn btn-ghost btn-xs"
+                                disabled={busy}
+                                onClick={() => run(() => changeItemQty(it.id, -1))}
+                              >
+                                −
+                              </button>
+                              <span className="w-6 text-center text-sm font-semibold">
+                                {it.quantity}
+                              </span>
+                              <button
+                                className="btn btn-ghost btn-xs"
+                                disabled={busy}
+                                onClick={() => run(() => changeItemQty(it.id, 1))}
+                              >
+                                +
+                              </button>
+                              <button
+                                className="btn btn-ghost btn-xs text-error"
+                                disabled={busy}
+                                onClick={() => run(() => removeItem(it.id))}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-sm font-semibold text-base-content/60">
+                              ×{it.quantity}
                             </span>
-                            <button
-                              className="btn btn-ghost btn-xs"
-                              disabled={busy}
-                              onClick={() => run(() => changeItemQty(it.id, 1))}
-                            >
-                              +
-                            </button>
-                            <button
-                              className="btn btn-ghost btn-xs text-error"
-                              disabled={busy}
-                              onClick={() => run(() => removeItem(it.id))}
-                            >
-                              ✕
-                            </button>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
-                  <p className="mb-2 text-xs font-semibold text-base-content/60">
-                    {t("dashboard.inventory.addItemTitle")}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <input
-                      className="input input-sm input-bordered w-full"
-                      placeholder={t("dashboard.inventory.itemNamePlaceholder")}
-                      value={itemForm.name}
-                      maxLength={40}
-                      onChange={(e) => setItemForm((f) => ({ ...f, name: e.target.value }))}
-                    />
-                    <div className="flex gap-2">
-                      <label className="flex flex-1 items-center gap-1 text-sm">
-                        {t("dashboard.inventory.itemQtyLabel")}
-                        <input
-                          type="number"
-                          min={1}
-                          className="input input-xs input-bordered w-16"
-                          value={itemForm.quantity}
-                          onChange={(e) =>
-                            setItemForm((f) => ({ ...f, quantity: Number(e.target.value) }))
-                          }
-                        />
-                      </label>
+                {!readonly && (
+                  <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
+                    <p className="mb-2 text-xs font-semibold text-base-content/60">
+                      {t("dashboard.inventory.addItemTitle")}
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        className="input input-sm input-bordered w-full"
+                        placeholder={t("dashboard.inventory.itemNamePlaceholder")}
+                        value={itemForm.name}
+                        maxLength={40}
+                        onChange={(e) => setItemForm((f) => ({ ...f, name: e.target.value }))}
+                      />
+                      <div className="flex gap-2">
+                        <label className="flex flex-1 items-center gap-1 text-sm">
+                          {t("dashboard.inventory.itemQtyLabel")}
+                          <input
+                            type="number"
+                            min={1}
+                            className="input input-xs input-bordered w-16"
+                            value={itemForm.quantity}
+                            onChange={(e) =>
+                              setItemForm((f) => ({ ...f, quantity: Number(e.target.value) }))
+                            }
+                          />
+                        </label>
+                      </div>
+                      <input
+                        className="input input-sm input-bordered w-full"
+                        placeholder={t("dashboard.inventory.itemDescPlaceholder")}
+                        value={itemForm.description}
+                        maxLength={80}
+                        onChange={(e) =>
+                          setItemForm((f) => ({ ...f, description: e.target.value }))
+                        }
+                      />
+                      <button
+                        className="btn btn-primary btn-sm w-full"
+                        disabled={busy || !itemForm.name.trim()}
+                        onClick={() => run(addItem)}
+                      >
+                        {t("common.addBtn")}
+                      </button>
                     </div>
-                    <input
-                      className="input input-sm input-bordered w-full"
-                      placeholder={t("dashboard.inventory.itemDescPlaceholder")}
-                      value={itemForm.description}
-                      maxLength={80}
-                      onChange={(e) => setItemForm((f) => ({ ...f, description: e.target.value }))}
-                    />
-                    <button
-                      className="btn btn-primary btn-sm w-full"
-                      disabled={busy || !itemForm.name.trim()}
-                      onClick={() => run(addItem)}
-                    >
-                      {t("common.addBtn")}
-                    </button>
                   </div>
-                </div>
+                )}
               </section>
 
               <div className="divider my-0" />
@@ -758,8 +794,13 @@ export function DashboardPage() {
                     min={0}
                     className="input input-sm input-bordered w-32 text-center"
                     value={currency.boulons}
-                    onChange={(e) => setCurrency({ boulons: Math.max(0, Number(e.target.value)) })}
-                    onBlur={() => run(saveCurrency)}
+                    readOnly={readonly}
+                    onChange={
+                      !readonly
+                        ? (e) => setCurrency({ boulons: Math.max(0, Number(e.target.value)) })
+                        : undefined
+                    }
+                    onBlur={!readonly ? () => run(saveCurrency) : undefined}
                   />
                   <span className="text-sm text-base-content/60">
                     {t("dashboard.inventory.boulonsUnit")}

@@ -120,6 +120,8 @@
     "deleteTitle": "Delete party?",
     "deleteBody": "\"{{name}}\" and all its data (saves, journal, notes) will be permanently deleted. This action is irreversible.",
     "deleteBtn": "🗑 Delete",
+    "readonlyBannerFinished": "This party is finished — view only.",
+    "readonlyBannerDead": "This character has died — view only.",
     "inventoryLog": {
       "weaponAdded": "Weapon added: {{name}}",
       "weaponRemoved": "Weapon removed",

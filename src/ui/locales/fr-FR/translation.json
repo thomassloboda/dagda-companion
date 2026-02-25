@@ -120,6 +120,8 @@
     "deleteTitle": "Supprimer la partie ?",
     "deleteBody": "« {{name}} » et toutes ses données (sauvegardes, journal, notes) seront supprimées définitivement. Cette action est irréversible.",
     "deleteBtn": "🗑 Supprimer",
+    "readonlyBannerFinished": "Cette partie est terminée — consultation uniquement.",
+    "readonlyBannerDead": "Ce personnage est mort — consultation uniquement.",
     "inventoryLog": {
       "weaponAdded": "Arme ajoutée : {{name}}",
       "weaponRemoved": "Arme retirée",
