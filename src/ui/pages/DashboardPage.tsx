@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import type { Party, Note, SaveSlot, TimelineEvent } from "../../domain/models";
+import type { Party, Note, SaveSlot, TimelineEvent, Weapon, Item } from "../../domain/models";
 import { TimelineEventType, PartyStatus } from "../../domain/models";
 import {
   partyRepo,
@@ -15,6 +15,7 @@ import {
   restoreSave,
   finishParty,
   exportParty,
+  updateInventory,
 } from "../../application/container";
 import { canRestoreAnySlot } from "../../domain/rules/character";
 
@@ -60,7 +61,12 @@ export function DashboardPage() {
   const [customInput, setCustomInput] = useState("");
   const [pendingChapter, setPendingChapter] = useState(1);
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"journal" | "notes" | "saves">("journal");
+  const [tab, setTab] = useState<"journal" | "notes" | "saves" | "inventaire">("journal");
+
+  // ── Inventory local form state ─────────────────────────────────────────────
+  const [weaponForm, setWeaponForm] = useState({ name: "", bonus: 0, description: "" });
+  const [itemForm, setItemForm] = useState({ name: "", quantity: 1, description: "" });
+  const [currency, setCurrency] = useState({ gold: 0, silver: 0, copper: 0 });
 
   const load = useCallback(async () => {
     if (!partyId) return;
@@ -73,6 +79,7 @@ export function DashboardPage() {
     if (!p) { navigate("/"); return; }
     setParty(p);
     setPendingChapter(p.currentChapter);
+    setCurrency(p.character.inventory.currency);
     setNotes(n);
     setSlots(s);
     setTimeline(t);
@@ -187,9 +194,9 @@ export function DashboardPage() {
 
       {/* Tabs */}
       <div role="tablist" className="tabs tabs-boxed mb-4">
-        {(["journal", "notes", "saves"] as const).map((t) => (
-          <button key={t} role="tab" className={`tab ${tab === t ? "tab-active" : ""}`} onClick={() => setTab(t)}>
-            {t === "journal" ? "Journal" : t === "notes" ? "Notes" : "Sauvegardes"}
+        {(["journal", "inventaire", "notes", "saves"] as const).map((t) => (
+          <button key={t} role="tab" className={`tab text-xs ${tab === t ? "tab-active" : ""}`} onClick={() => setTab(t)}>
+            {t === "journal" ? "Journal" : t === "inventaire" ? "Inventaire" : t === "notes" ? "Notes" : "Sauvegardes"}
           </button>
         ))}
       </div>
@@ -346,6 +353,277 @@ export function DashboardPage() {
           )}
         </div>
       )}
+
+      {/* ── Inventaire ── */}
+      {tab === "inventaire" && (() => {
+        const inv = party.character.inventory;
+
+        async function saveInv(patch: Partial<typeof inv>, label: string) {
+          await updateInventory.execute(partyId!, { ...inv, ...patch }, label);
+          await load();
+        }
+
+        // ── Weapons helpers ──────────────────────────────────────────────────
+
+        async function addWeapon() {
+          if (!weaponForm.name.trim()) return;
+          const weapon: Weapon = {
+            id: crypto.randomUUID(),
+            name: weaponForm.name.trim(),
+            bonus: weaponForm.bonus,
+            description: weaponForm.description.trim() || undefined,
+          };
+          const weapons = [...inv.weapons, weapon];
+          await saveInv(
+            { weapons, equippedWeaponId: inv.equippedWeaponId ?? weapon.id },
+            `Arme ajoutée : ${weapon.name}`,
+          );
+          setWeaponForm({ name: "", bonus: 0, description: "" });
+        }
+
+        async function removeWeapon(id: string) {
+          const weapons = inv.weapons.filter((w) => w.id !== id);
+          const equippedWeaponId =
+            inv.equippedWeaponId === id ? weapons[0]?.id : inv.equippedWeaponId;
+          await saveInv({ weapons, equippedWeaponId }, "Arme retirée");
+        }
+
+        async function equipWeapon(id: string) {
+          await saveInv({ equippedWeaponId: id }, `Arme équipée : ${inv.weapons.find(w => w.id === id)?.name}`);
+        }
+
+        // ── Items helpers ────────────────────────────────────────────────────
+
+        async function addItem() {
+          if (!itemForm.name.trim()) return;
+          const item: Item = {
+            id: crypto.randomUUID(),
+            name: itemForm.name.trim(),
+            quantity: Math.max(1, itemForm.quantity),
+            description: itemForm.description.trim() || undefined,
+          };
+          await saveInv({ items: [...inv.items, item] }, `Objet ajouté : ${item.name}`);
+          setItemForm({ name: "", quantity: 1, description: "" });
+        }
+
+        async function changeItemQty(id: string, delta: number) {
+          const items = inv.items
+            .map((it) => (it.id === id ? { ...it, quantity: Math.max(0, it.quantity + delta) } : it))
+            .filter((it) => it.quantity > 0);
+          const item = inv.items.find((it) => it.id === id);
+          await saveInv({ items }, delta > 0 ? `+${delta} ${item?.name}` : `${delta} ${item?.name}`);
+        }
+
+        async function removeItem(id: string) {
+          const item = inv.items.find((it) => it.id === id);
+          await saveInv({ items: inv.items.filter((it) => it.id !== id) }, `Objet retiré : ${item?.name}`);
+        }
+
+        // ── Currency helper ──────────────────────────────────────────────────
+
+        async function saveCurrency() {
+          await saveInv({ currency }, "Monnaie mise à jour");
+        }
+
+        return (
+          <div className="flex flex-col gap-5">
+
+            {/* ── Armes ── */}
+            <section>
+              <h3 className="mb-2 font-semibold">⚔️ Armes</h3>
+
+              {inv.weapons.length === 0 && (
+                <p className="mb-2 text-sm text-base-content/40">Aucune arme.</p>
+              )}
+
+              <div className="flex flex-col gap-2">
+                {inv.weapons.map((w) => (
+                  <div
+                    key={w.id}
+                    className={`card border-2 bg-base-200 transition ${
+                      inv.equippedWeaponId === w.id ? "border-primary" : "border-transparent"
+                    }`}
+                  >
+                    <div className="card-body gap-1 p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <span className="font-medium">{w.name}</span>
+                          {w.bonus !== 0 && (
+                            <span className="ml-2 text-sm text-success">+{w.bonus} dégâts</span>
+                          )}
+                          {inv.equippedWeaponId === w.id && (
+                            <span className="badge badge-primary badge-sm ml-2">équipée</span>
+                          )}
+                          {w.description && (
+                            <p className="mt-0.5 text-xs text-base-content/50 italic">{w.description}</p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 gap-1">
+                          {inv.equippedWeaponId !== w.id && (
+                            <button
+                              className="btn btn-ghost btn-xs"
+                              disabled={busy}
+                              title="Équiper"
+                              onClick={() => run(() => equipWeapon(w.id))}
+                            >
+                              ✓
+                            </button>
+                          )}
+                          <button
+                            className="btn btn-ghost btn-xs text-error"
+                            disabled={busy}
+                            onClick={() => run(() => removeWeapon(w.id))}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Formulaire ajout arme */}
+              <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
+                <p className="mb-2 text-xs font-semibold text-base-content/60">Ajouter une arme</p>
+                <div className="flex flex-col gap-2">
+                  <input
+                    className="input input-bordered input-sm w-full"
+                    placeholder="Nom *"
+                    value={weaponForm.name}
+                    maxLength={40}
+                    onChange={(e) => setWeaponForm((f) => ({ ...f, name: e.target.value }))}
+                  />
+                  <div className="flex gap-2">
+                    <label className="flex flex-1 items-center gap-1 text-sm">
+                      Bonus dégâts
+                      <input
+                        type="number"
+                        className="input input-bordered input-xs w-16"
+                        value={weaponForm.bonus}
+                        onChange={(e) => setWeaponForm((f) => ({ ...f, bonus: Number(e.target.value) }))}
+                      />
+                    </label>
+                  </div>
+                  <input
+                    className="input input-bordered input-sm w-full"
+                    placeholder="Spécificité (optionnel)"
+                    value={weaponForm.description}
+                    maxLength={80}
+                    onChange={(e) => setWeaponForm((f) => ({ ...f, description: e.target.value }))}
+                  />
+                  <button
+                    className="btn btn-primary btn-sm w-full"
+                    disabled={busy || !weaponForm.name.trim()}
+                    onClick={() => run(addWeapon)}
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <div className="divider my-0" />
+
+            {/* ── Sac (items) ── */}
+            <section>
+              <h3 className="mb-2 font-semibold">🎒 Sac</h3>
+
+              {inv.items.length === 0 && (
+                <p className="mb-2 text-sm text-base-content/40">Sac vide.</p>
+              )}
+
+              <div className="flex flex-col gap-2">
+                {inv.items.map((it) => (
+                  <div key={it.id} className="card bg-base-200">
+                    <div className="card-body gap-1 p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <span className="font-medium">{it.name}</span>
+                          {it.description && (
+                            <p className="mt-0.5 text-xs text-base-content/50 italic">{it.description}</p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button className="btn btn-ghost btn-xs" disabled={busy} onClick={() => run(() => changeItemQty(it.id, -1))}>−</button>
+                          <span className="w-6 text-center text-sm font-semibold">{it.quantity}</span>
+                          <button className="btn btn-ghost btn-xs" disabled={busy} onClick={() => run(() => changeItemQty(it.id, 1))}>+</button>
+                          <button className="btn btn-ghost btn-xs text-error" disabled={busy} onClick={() => run(() => removeItem(it.id))}>✕</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Formulaire ajout objet */}
+              <div className="mt-3 rounded-lg border border-base-300 bg-base-200 p-3">
+                <p className="mb-2 text-xs font-semibold text-base-content/60">Ajouter un objet</p>
+                <div className="flex flex-col gap-2">
+                  <input
+                    className="input input-bordered input-sm w-full"
+                    placeholder="Nom *"
+                    value={itemForm.name}
+                    maxLength={40}
+                    onChange={(e) => setItemForm((f) => ({ ...f, name: e.target.value }))}
+                  />
+                  <div className="flex gap-2">
+                    <label className="flex flex-1 items-center gap-1 text-sm">
+                      Qté
+                      <input
+                        type="number"
+                        min={1}
+                        className="input input-bordered input-xs w-16"
+                        value={itemForm.quantity}
+                        onChange={(e) => setItemForm((f) => ({ ...f, quantity: Number(e.target.value) }))}
+                      />
+                    </label>
+                  </div>
+                  <input
+                    className="input input-bordered input-sm w-full"
+                    placeholder="Description (optionnel)"
+                    value={itemForm.description}
+                    maxLength={80}
+                    onChange={(e) => setItemForm((f) => ({ ...f, description: e.target.value }))}
+                  />
+                  <button
+                    className="btn btn-primary btn-sm w-full"
+                    disabled={busy || !itemForm.name.trim()}
+                    onClick={() => run(addItem)}
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <div className="divider my-0" />
+
+            {/* ── Monnaie ── */}
+            <section>
+              <h3 className="mb-2 font-semibold">💰 Monnaie</h3>
+              <div className="flex gap-3">
+                {(["gold", "silver", "copper"] as const).map((coin) => (
+                  <label key={coin} className="flex flex-1 flex-col items-center gap-1 text-xs">
+                    <span className="capitalize text-base-content/60">
+                      {coin === "gold" ? "🪙 Or" : coin === "silver" ? "🥈 Argent" : "🟤 Cuivre"}
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      className="input input-bordered input-sm w-full text-center"
+                      value={currency[coin]}
+                      onChange={(e) => setCurrency((c) => ({ ...c, [coin]: Math.max(0, Number(e.target.value)) }))}
+                      onBlur={() => run(saveCurrency)}
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+
+          </div>
+        );
+      })()}
     </div>
   );
 }

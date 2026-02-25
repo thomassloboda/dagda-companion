@@ -154,12 +154,15 @@ export function CombatPage() {
     if (hit.success) {
       const dr = rng.rollD6();
       setDamageRoll(dr);
-      const weapon = char.inventory.weapons[0];
+      const inv = char.inventory;
+      const weapon =
+        inv.weapons.find((w) => w.id === inv.equippedWeaponId) ?? inv.weapons[0];
       const damage = resolveDamage(dr, weapon?.bonus ?? 0);
+      const weaponLabel = weapon ? ` [${weapon.name}${weapon.bonus ? ` +${weapon.bonus}` : ""}]` : "";
       logEntry = {
         turn, actor: "player", roll: rolls, success: true,
         damage: damage.total,
-        label: `Tour ${turn} — Joueur touche (${rolls.join("+")}=${hit.total}) → ${damage.total} dégâts`,
+        label: `Tour ${turn} — Joueur touche (${rolls.join("+")}=${hit.total})${weaponLabel} → ${damage.total} dégâts`,
       };
       // Apply damage to enemy
       setEnemies((prev) =>

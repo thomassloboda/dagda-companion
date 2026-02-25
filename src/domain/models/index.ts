@@ -54,6 +54,7 @@ export enum TimelineEventType {
   PARTY_EXPORTED = "party_exported",
   PARTY_FINISHED = "party_finished",
   CUSTOM_ACTION = "custom_action",
+  INVENTORY_CHANGED = "inventory_changed",
 }
 
 export enum OutboxStatus {
@@ -87,6 +88,8 @@ export interface Inventory {
   weapons: Weapon[];
   items: Item[];
   currency: Currency;
+  /** id de l'arme active en combat (fallback sur la première si absent) */
+  equippedWeaponId?: string;
 }
 
 export interface Character {

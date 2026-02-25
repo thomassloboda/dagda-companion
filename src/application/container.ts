@@ -23,6 +23,7 @@ import { ExportPartyUseCase } from "./use-cases/ExportPartyUseCase";
 import { ImportPartyUseCase } from "./use-cases/ImportPartyUseCase";
 import { FinishPartyUseCase } from "./use-cases/FinishPartyUseCase";
 import { ApplyLuckUseCase } from "./use-cases/ApplyLuckUseCase";
+import { UpdateInventoryUseCase } from "./use-cases/UpdateInventoryUseCase";
 
 // ─── Adapters ─────────────────────────────────────────────────────────────────
 
@@ -48,3 +49,4 @@ export const exportParty = new ExportPartyUseCase(partyRepo, noteRepo, saveSlotR
 export const importParty = new ImportPartyUseCase(partyRepo, noteRepo, saveSlotRepo, eventLog, clock, jsonExport);
 export const finishParty = new FinishPartyUseCase(partyRepo, eventLog, outboxRepo, clock);
 export const applyLuck = new ApplyLuckUseCase(partyRepo, eventLog, clock);
+export const updateInventory = new UpdateInventoryUseCase(partyRepo, eventLog, clock);
