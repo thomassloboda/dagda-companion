@@ -9,7 +9,7 @@ export enum GameMode {
 export enum Talent {
   INSTINCT = "INSTINCT",
   HERBOLOGY = "HERBOLOGY",
-  DISCRETION = "DISCRETION",
+  STEALTH = "DISCRETION",
   PERSUASION = "PERSUASION",
   OBSERVATION = "OBSERVATION",
   SLEIGHT_OF_HAND = "SLEIGHT_OF_HAND",
@@ -19,7 +19,7 @@ export enum Talent {
 export const TALENT_LABELS: Record<Talent, string> = {
   [Talent.INSTINCT]: "Instinct",
   [Talent.HERBOLOGY]: "Herboristerie",
-  [Talent.DISCRETION]: "Discrétion",
+  [Talent.STEALTH]: "Discrétion",
   [Talent.PERSUASION]: "Persuasion",
   [Talent.OBSERVATION]: "Observation",
   [Talent.SLEIGHT_OF_HAND]: "Tour de main",

@@ -8,17 +8,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack obligatoire
 
-| Rôle | Lib |
-|------|-----|
-| Build | Vite + React + TypeScript |
-| UI | TailwindCSS + DaisyUI (obligatoire partout) |
-| Routing | react-router |
-| State | Zustand (logique domaine hors UI) |
-| Storage | IndexedDB via Dexie, pattern repository |
-| Dés | `react-dice-roll` (visualisation + animation) |
-| PWA | vite-plugin-pwa, service worker, offline |
-| Tests | Vitest |
-| Qualité | ESLint + Prettier + commitlint + husky |
+| Rôle    | Lib                                           |
+| ------- | --------------------------------------------- |
+| Build   | Vite + React + TypeScript                     |
+| UI      | TailwindCSS + DaisyUI (obligatoire partout)   |
+| Routing | react-router                                  |
+| State   | Zustand (logique domaine hors UI)             |
+| Storage | IndexedDB via Dexie, pattern repository       |
+| Dés     | `react-dice-roll` (visualisation + animation) |
+| PWA     | vite-plugin-pwa, service worker, offline      |
+| Tests   | Vitest                                        |
+| Qualité | ESLint + Prettier + commitlint + husky        |
 
 ## Commandes
 
@@ -39,6 +39,7 @@ npx vitest run src/domain/<file>.test.ts
 ```
 
 Hooks git (husky) :
+
 - `pre-commit` : lint + `test:domain`
 - `pre-push` : `test`
 
@@ -68,6 +69,7 @@ Le domain n'importe rien hors de lui-même.
 Types obligatoires : `Party`, `Character`, `Inventory`, `Weapon`, `Item`, `Currency`, `SaveSlot`, `Note`, `TimelineEvent`, `OutboxEvent`, `PartySnapshot`.
 
 Invariants :
+
 - 3 saves max par partie
 - `timeline` append-only
 - `outbox` append-only (seul le statut `PENDING/SENT` est modifiable)
@@ -78,20 +80,23 @@ Invariants :
 **Modes** : `NARRATIVE | SIMPLIFIED | MORTAL`
 
 **Talents** (enum anglais, labels FR en UI) :
-`INSTINCT | HERBOLOGY | DISCRETION | PERSUASION | OBSERVATION | SLEIGHT_OF_HAND | EMPATHY_PRACTICE`
+`INSTINCT | HERBOLOGY | STEALTH | PERSUASION | OBSERVATION | SLEIGHT_OF_HAND | EMPATHY_PRACTICE`
 
 **Caractéristiques initiales** :
+
 - `hpMax = (2d6) * 4` ; `hpCurrent = hpMax`
 - `luck = 1d6`
 - `dexterity = 7`
 
 **Combat normal** (tour par tour) :
+
 - Toucher : `2d6 <= DEX` → succès
 - Dégâts : `1 + 1d6 + bonusArme`
 - Ennemi attaque avec ses propres stats
 - Chance : ajuster un dé après jet (augmenter uniquement), coût = delta, log `luck_spent`
 
 **Mort** (mode MORTAL, `hpCurrent = 0`) :
+
 - Reset : chapitre=1, `hpCurrent=hpMax`, inventaire/armes/monnaie vidés, chance conservée
 - Log : `death_reset`
 
