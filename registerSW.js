@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/dagda-companion/sw.js', { scope: '/dagda-companion/' })})}
