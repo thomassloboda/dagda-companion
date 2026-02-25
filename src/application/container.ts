@@ -24,6 +24,7 @@ import { ImportPartyUseCase } from "./use-cases/ImportPartyUseCase";
 import { FinishPartyUseCase } from "./use-cases/FinishPartyUseCase";
 import { ApplyLuckUseCase } from "./use-cases/ApplyLuckUseCase";
 import { UpdateInventoryUseCase } from "./use-cases/UpdateInventoryUseCase";
+import { DeletePartyUseCase } from "./use-cases/DeletePartyUseCase";
 
 // ─── Adapters ─────────────────────────────────────────────────────────────────
 
@@ -50,3 +51,4 @@ export const importParty = new ImportPartyUseCase(partyRepo, noteRepo, saveSlotR
 export const finishParty = new FinishPartyUseCase(partyRepo, eventLog, outboxRepo, clock);
 export const applyLuck = new ApplyLuckUseCase(partyRepo, eventLog, clock);
 export const updateInventory = new UpdateInventoryUseCase(partyRepo, eventLog, clock);
+export const deleteParty = new DeletePartyUseCase(partyRepo);

@@ -16,6 +16,7 @@ import {
   finishParty,
   exportParty,
   updateInventory,
+  deleteParty,
 } from "../../application/container";
 import { canRestoreAnySlot } from "../../domain/rules/character";
 
@@ -62,6 +63,9 @@ export function DashboardPage() {
   const [pendingChapter, setPendingChapter] = useState(1);
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"journal" | "notes" | "saves" | "inventaire">("journal");
+
+  const [confirmFinish, setConfirmFinish] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // ── Inventory local form state ─────────────────────────────────────────────
   const [weaponForm, setWeaponForm] = useState({ name: "", bonus: 0, description: "" });
@@ -317,7 +321,7 @@ export function DashboardPage() {
             })}
           </div>
 
-          {/* Export + Finish */}
+          {/* Export + Finish + Delete */}
           <div className="divider" />
           <button
             className="btn btn-outline btn-sm w-full"
@@ -335,15 +339,12 @@ export function DashboardPage() {
           >
             📤 Exporter JSON
           </button>
+
           {party.status === PartyStatus.ACTIVE && (
             <button
               className="btn btn-warning btn-sm w-full"
               disabled={busy}
-              onClick={() => {
-                if (confirm("Terminer la partie définitivement ?")) {
-                  run(() => finishParty.execute(partyId!));
-                }
-              }}
+              onClick={() => setConfirmFinish(true)}
             >
               🏁 Terminer la partie
             </button>
@@ -351,6 +352,14 @@ export function DashboardPage() {
           {party.status === PartyStatus.FINISHED && (
             <div className="alert alert-info text-sm">Partie terminée. Exportez pour archiver.</div>
           )}
+
+          <button
+            className="btn btn-ghost btn-sm w-full text-error"
+            disabled={busy}
+            onClick={() => setConfirmDelete(true)}
+          >
+            🗑 Supprimer la partie
+          </button>
         </div>
       )}
 
@@ -618,6 +627,77 @@ export function DashboardPage() {
           </div>
         );
       })()}
+
+      {/* ── Modal : Terminer la partie ── */}
+      {confirmFinish && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="text-lg font-bold">Terminer la partie ?</h3>
+            <p className="py-3 text-sm text-base-content/70">
+              La partie <span className="font-semibold">« {party.name} »</span> sera
+              marquée comme terminée. Vous pourrez toujours consulter son historique
+              et l'exporter.
+            </p>
+            <div className="modal-action gap-2">
+              <button
+                className="btn btn-ghost flex-1"
+                disabled={busy}
+                onClick={() => setConfirmFinish(false)}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn btn-warning flex-1"
+                disabled={busy}
+                onClick={() => {
+                  setConfirmFinish(false);
+                  run(() => finishParty.execute(partyId!));
+                }}
+              >
+                🏁 Terminer
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setConfirmFinish(false)} />
+        </div>
+      )}
+
+      {/* ── Modal : Supprimer la partie ── */}
+      {confirmDelete && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="text-lg font-bold text-error">Supprimer la partie ?</h3>
+            <p className="py-3 text-sm">
+              <span className="font-semibold">« {party.name} »</span> et toutes ses
+              données (sauvegardes, journal, notes) seront supprimées définitivement.
+              Cette action est irréversible.
+            </p>
+            <div className="modal-action gap-2">
+              <button
+                className="btn btn-ghost flex-1"
+                disabled={busy}
+                onClick={() => setConfirmDelete(false)}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn btn-error flex-1"
+                disabled={busy}
+                onClick={() => {
+                  setConfirmDelete(false);
+                  run(async () => {
+                    await deleteParty.execute(partyId!);
+                    navigate("/");
+                  });
+                }}
+              >
+                🗑 Supprimer
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setConfirmDelete(false)} />
+        </div>
+      )}
     </div>
   );
 }

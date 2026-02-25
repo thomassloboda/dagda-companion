@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { partyRepo } from "../../application/container";
+import { partyRepo, deleteParty } from "../../application/container";
 import type { Party } from "../../domain/models";
 import { PartyStatus } from "../../domain/models";
 
@@ -29,14 +29,26 @@ function timeAgo(iso: string): string {
 export function HomePage() {
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toDelete, setToDelete] = useState<Party | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    partyRepo.findAll().then((data) => {
-      setParties(data);
-      setLoading(false);
-    });
-  }, []);
+  async function load() {
+    const data = await partyRepo.findAll();
+    setParties(data);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function handleDelete() {
+    if (!toDelete) return;
+    setDeleting(true);
+    await deleteParty.execute(toDelete.id);
+    setToDelete(null);
+    setDeleting(false);
+    await load();
+  }
 
   if (loading) {
     return (
@@ -67,25 +79,72 @@ export function HomePage() {
       ) : (
         <div className="flex flex-col gap-3">
           {parties.map((p) => (
-            <button
+            <div
               key={p.id}
-              className="card bg-base-200 text-left shadow transition hover:shadow-md active:scale-95"
-              onClick={() => navigate(`/party/${p.id}`)}
+              className="card bg-base-200 shadow transition hover:shadow-md"
             >
               <div className="card-body gap-1 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <span className="font-semibold">{p.name}</span>
-                  <span className={`badge ${STATUS_BADGE[p.status]} shrink-0`}>
-                    {STATUS_LABELS[p.status]}
-                  </span>
+                  {/* Zone cliquable → dashboard */}
+                  <button
+                    className="flex flex-1 flex-col items-start gap-1 text-left"
+                    onClick={() => navigate(`/party/${p.id}`)}
+                  >
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className="font-semibold">{p.name}</span>
+                      <span className={`badge ${STATUS_BADGE[p.status]} shrink-0`}>
+                        {STATUS_LABELS[p.status]}
+                      </span>
+                    </div>
+                    <div className="text-sm text-base-content/60">
+                      Ch. {p.currentChapter} · {p.mode} · {p.character.name}
+                    </div>
+                    <div className="text-xs text-base-content/40">{timeAgo(p.updatedAt)}</div>
+                  </button>
+
+                  {/* Bouton suppression */}
+                  <button
+                    className="btn btn-ghost btn-sm shrink-0 text-error"
+                    title="Supprimer la partie"
+                    onClick={(e) => { e.stopPropagation(); setToDelete(p); }}
+                  >
+                    🗑
+                  </button>
                 </div>
-                <div className="text-sm text-base-content/60">
-                  Ch. {p.currentChapter} · {p.mode} · {p.character.name}
-                </div>
-                <div className="text-xs text-base-content/40">{timeAgo(p.updatedAt)}</div>
               </div>
-            </button>
+            </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Modal confirmation suppression ── */}
+      {toDelete && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="text-lg font-bold text-error">Supprimer la partie ?</h3>
+            <p className="py-3 text-sm">
+              <span className="font-semibold">« {toDelete.name} »</span> sera supprimée
+              définitivement avec toutes ses sauvegardes, notes et journal.
+              Cette action est irréversible.
+            </p>
+            <div className="modal-action gap-2">
+              <button
+                className="btn btn-ghost flex-1"
+                disabled={deleting}
+                onClick={() => setToDelete(null)}
+              >
+                Annuler
+              </button>
+              <button
+                className="btn btn-error flex-1"
+                disabled={deleting}
+                onClick={handleDelete}
+              >
+                {deleting ? <span className="loading loading-spinner loading-sm" /> : "Supprimer"}
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => !deleting && setToDelete(null)} />
         </div>
       )}
     </div>
