@@ -1,0 +1,1 @@
+{"root":["./src/main.tsx","./src/test/setup.ts","./src/ui/router.tsx","./src/ui/components/layout/rootlayout.tsx","./src/ui/pages/combatpage.tsx","./src/ui/pages/createpartypage.tsx","./src/ui/pages/dashboardpage.tsx","./src/ui/pages/homepage.tsx","./src/ui/pages/notfoundpage.tsx","./src/ui/pages/settingspage.tsx","./src/ui/stores/themestore.ts"],"version":"5.9.3"}
