@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Party, Enemy, CombatLogEntry } from "../../domain/models";
@@ -19,6 +19,7 @@ import {
   isVictory,
   isDefeat,
 } from "../../domain/rules/combat";
+import { DiceRoller, type DiceRollerHandle } from "../components/dice/DiceRoller";
 
 type CombatStatus = "setup" | "ongoing" | "victory" | "defeat" | "mortal_death";
 
@@ -100,6 +101,9 @@ export function CombatPage() {
   const [, setDamageRoll] = useState<number>(1);
   const [rerolls, setRerolls] = useState<RerollRecord[]>([]);
 
+  const die1Ref = useRef<DiceRollerHandle>(null);
+  const die2Ref = useRef<DiceRollerHandle>(null);
+
   const load = useCallback(async () => {
     if (!partyId) return;
     const p = await partyRepo.findById(partyId);
@@ -175,6 +179,8 @@ export function CombatPage() {
     setBusy(true);
     const rolls = rng.roll2D6();
     const hit = resolveHit(rolls, char.dexterity);
+    die1Ref.current?.roll(rolls[0]);
+    die2Ref.current?.roll(rolls[1]);
     setPlayerRolls(rolls);
 
     const now = clock.now();
@@ -327,6 +333,7 @@ export function CombatPage() {
     const newRolls: [number, number] = [...playerRolls] as [number, number];
     newRolls[dieIndex] = result.newRoll;
     setPlayerRolls(newRolls);
+    (dieIndex === 0 ? die1Ref : die2Ref).current?.roll(result.newRoll);
     await load();
   }
 
@@ -336,6 +343,8 @@ export function CombatPage() {
     const before = playerRolls[0] + playerRolls[1];
     const rolls = rng.roll2D6();
     const after = rolls[0] + rolls[1];
+    die1Ref.current?.roll(rolls[0]);
+    die2Ref.current?.roll(rolls[1]);
     setPlayerRolls(rolls);
     setRerolls((prev) => [...prev, { context: "combat-player-attack", before, after }]);
     const now = clock.now();
@@ -509,15 +518,9 @@ export function CombatPage() {
                   dex: char.dexterity,
                 })}
               </div>
-              <div className="flex gap-2">
-                {playerRolls.map((v, i) => (
-                  <div
-                    key={i}
-                    className="flex h-10 w-10 items-center justify-center rounded border-2 border-base-300 bg-base-100 text-lg font-bold"
-                  >
-                    {v}
-                  </div>
-                ))}
+              <div className="flex gap-3">
+                <DiceRoller ref={die1Ref} defaultValue={playerRolls[0]} size={52} />
+                <DiceRoller ref={die2Ref} defaultValue={playerRolls[1]} size={52} />
               </div>
               <RerollButton onReroll={handleRerollPlayerAttack} />
             </div>

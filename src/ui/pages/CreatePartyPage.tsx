@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { GameMode, Talent } from "../../domain/models";
 import { rng } from "../../application/container";
 import type { CreatePartyInput } from "../../application/use-cases/CreatePartyUseCase";
+import { DiceRoller, type DiceRollerHandle } from "../components/dice/DiceRoller";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -39,16 +40,21 @@ export function CreatePartyPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const hp1Ref = useRef<DiceRollerHandle>(null);
+  const hp2Ref = useRef<DiceRollerHandle>(null);
+  const luckRef = useRef<DiceRollerHandle>(null);
+
   const stepIdx = STEPS.indexOf(step);
   const hpRoll = state.hpDice[0] + state.hpDice[1];
   const hpMax = hpRoll * 4;
 
   function rerollStats() {
-    setState((s) => ({
-      ...s,
-      hpDice: [rng.rollD6(), rng.rollD6()],
-      luckDice: rng.rollD6(),
-    }));
+    const newHpDice: [number, number] = [rng.rollD6(), rng.rollD6()];
+    const newLuckDice = rng.rollD6();
+    hp1Ref.current?.roll(newHpDice[0]);
+    hp2Ref.current?.roll(newHpDice[1]);
+    luckRef.current?.roll(newLuckDice);
+    setState((s) => ({ ...s, hpDice: newHpDice, luckDice: newLuckDice }));
   }
 
   function canNext(): boolean {
@@ -258,34 +264,31 @@ export function CreatePartyPage() {
           />
 
           <div className="card bg-base-200">
-            <div className="card-body gap-3 p-4">
+            <div className="card-body gap-4 p-4">
               <h3 className="font-semibold">{t("createParty.initialStats")}</h3>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm">
-                  {t("createParty.hpMaxLabel")} :{" "}
-                  <span className="font-bold text-success">
-                    {t("createParty.hpRollDisplay", {
-                      d1: state.hpDice[0],
-                      d2: state.hpDice[1],
-                      roll: hpRoll,
-                      hpMax,
-                    })}
-                  </span>
-                </span>
+              {/* HP */}
+              <div className="flex flex-col gap-1">
+                <span className="text-sm text-base-content/70">{t("createParty.hpMaxLabel")}</span>
+                <div className="flex items-center gap-3">
+                  <DiceRoller ref={hp1Ref} defaultValue={state.hpDice[0]} size={52} />
+                  <DiceRoller ref={hp2Ref} defaultValue={state.hpDice[1]} size={52} />
+                  <span className="text-sm font-bold text-success">× 4 = {hpMax} HP</span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm">
-                  {t("createParty.luckLabel")} :{" "}
-                  <span className="font-bold text-warning">{state.luckDice}</span>
-                </span>
+              {/* Luck */}
+              <div className="flex flex-col gap-1">
+                <span className="text-sm text-base-content/70">{t("createParty.luckLabel")}</span>
+                <DiceRoller ref={luckRef} defaultValue={state.luckDice} size={52} />
               </div>
 
+              {/* Dexterity (fixed) */}
               <div className="flex items-center justify-between">
-                <span className="text-sm">
-                  {t("createParty.dexterityLabel")} : <span className="font-bold">7</span>
+                <span className="text-sm text-base-content/70">
+                  {t("createParty.dexterityLabel")}
                 </span>
+                <span className="font-bold">7</span>
               </div>
 
               <button type="button" className="btn btn-outline btn-sm w-full" onClick={rerollStats}>
