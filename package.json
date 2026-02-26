@@ -42,6 +42,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.8",
     "autoprefixer": "^10.4.20",
+    "conventional-commits-parser": "^6.2.1",
     "daisyui": "^4.12.23",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.1.0",
