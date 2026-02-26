@@ -15,7 +15,7 @@ const LANG_OPTIONS: { value: string; labelKey: string }[] = [
   { value: "en-US", labelKey: "settings.langEN" },
 ];
 
-const CHANGELOG_VERSIONS = ["v0_1_0"] as const;
+const CHANGELOG_VERSIONS = ["v0_4_0", "v0_3_0", "v0_2_0", "v0_1_0"] as const;
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation();

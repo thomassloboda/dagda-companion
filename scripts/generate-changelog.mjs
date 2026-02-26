@@ -115,9 +115,14 @@ try {
 }
 
 const { fr, en } = parsed;
-if (!Array.isArray(fr) || !Array.isArray(en) || fr.length === 0) {
+if (!Array.isArray(fr) || !Array.isArray(en)) {
   console.error("Format de réponse inattendu :", parsed);
   process.exit(1);
+}
+
+if (fr.length === 0) {
+  console.log("Aucune nouveauté visible pour l'utilisateur — changelog ignoré.");
+  process.exit(0);
 }
 
 console.log(`   FR : ${fr.length} entrée(s)`);

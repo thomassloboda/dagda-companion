@@ -268,6 +268,23 @@
   "changelog": {
     "title": "Nouveautés",
     "closeBtn": "Fermer",
+    "v0_4_0": {
+      "label": "v0.4.0 — Nouveautés",
+      "items": [
+        "Les dés s'affichent et s'animent désormais correctement dans tous les navigateurs et sur tous les appareils"
+      ]
+    },
+    "v0_3_0": {
+      "label": "v0.3.0 — Nouveautés",
+      "items": ["Corrections techniques pour assurer la stabilité et la fiabilité de l'application"]
+    },
+    "v0_2_0": {
+      "label": "v0.2.0 — Nouveautés",
+      "items": [
+        "Les dés s'animent à chaque lancer en combat et lors de la création de personnage",
+        "Un journal des mises à jour est accessible depuis les réglages en appuyant sur le numéro de version"
+      ]
+    },
     "v0_1_0": {
       "label": "v0.1.0 — Lancement",
       "items": [
