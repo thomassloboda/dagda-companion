@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "git": {
+    "commitMessage": "chore(config): release v${version}",
+    "tagName": "v${version}",
+    "push": true
+  },
+  "github": {
+    "release": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          { "type": "feat", "section": "✨ Nouveautés" },
+          { "type": "fix", "section": "🐛 Corrections" },
+          { "type": "perf", "section": "⚡ Performances" },
+          { "type": "refactor", "hidden": true },
+          { "type": "chore", "hidden": true },
+          { "type": "ci", "hidden": true },
+          { "type": "docs", "hidden": true },
+          { "type": "build", "hidden": true }
+        ]
+      },
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog"
+    }
+  },
+  "hooks": {
+    "after:bump": "node scripts/generate-changelog.mjs ${version} && git add src/ui/locales/fr-FR/translation.json src/ui/locales/en-US/translation.json src/ui/pages/SettingsPage.tsx"
+  }
+}
