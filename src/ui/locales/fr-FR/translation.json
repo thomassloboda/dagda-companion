@@ -259,10 +259,27 @@
     "importDesc": "Chargez un fichier JSON exporté depuis une autre session.",
     "importBtn": "📂 Choisir un fichier JSON",
     "importError": "Erreur d'import : {{message}}",
-    "footer": "Dagda – La Saga v0.1.0"
+    "footer": "Dagda – La Saga"
   },
   "notFound": {
     "title": "Page introuvable",
     "backBtn": "Retour à l'accueil"
+  },
+  "changelog": {
+    "title": "Nouveautés",
+    "closeBtn": "Fermer",
+    "v0_1_0": {
+      "label": "v0.1.0 — Lancement",
+      "items": [
+        "Création de partie avec trois modes : Narratif, Simplifié et Mortel",
+        "Fiche personnage complète : points de vie, chance, dextérité et inventaire (armes, objets, boulons)",
+        "Système de combat tour par tour — utiliser la chance pour ajuster vos dés à la hausse ou à la baisse",
+        "Journal horodaté, notes libres et trois emplacements de sauvegarde",
+        "Export et import de partie au format JSON",
+        "Parties terminées ou mortes consultables en lecture seule",
+        "Interface disponible en français et en anglais, avec détection automatique de la langue",
+        "Application installable sur l'écran d'accueil, fonctionne hors-ligne (PWA)"
+      ]
+    }
   }
 }

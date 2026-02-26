@@ -8,22 +8,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack obligatoire
 
-| Rôle    | Lib                                           |
-| ------- | --------------------------------------------- |
-| Build   | Vite + React + TypeScript                     |
-| UI      | TailwindCSS + DaisyUI (obligatoire partout)   |
-| Routing | react-router                                  |
-| State   | Zustand (logique domaine hors UI)             |
-| Storage | IndexedDB via Dexie, pattern repository       |
-| Dés     | `react-dice-roll` (visualisation + animation) |
-| PWA     | vite-plugin-pwa, service worker, offline      |
-| Tests   | Vitest                                        |
-| Qualité | ESLint + Prettier + commitlint + husky        |
+| Rôle    | Lib                                                        |
+| ------- | ---------------------------------------------------------- |
+| Build   | Vite + React + TypeScript                                  |
+| UI      | TailwindCSS + DaisyUI (obligatoire partout)                |
+| Routing | react-router (`basename` = `import.meta.env.BASE_URL`)     |
+| State   | Zustand (logique domaine hors UI)                          |
+| Storage | IndexedDB via Dexie, pattern repository                    |
+| Dés     | `react-dice-roll` (visualisation + animation)              |
+| PWA     | vite-plugin-pwa, service worker, offline                   |
+| i18n    | i18next + react-i18next + i18next-browser-languagedetector |
+| Tests   | Vitest                                                     |
+| Qualité | ESLint + Prettier + commitlint + husky                     |
 
 ## Commandes
 
 ```bash
-npm install
+npm install --legacy-peer-deps   # react-dice-roll peer dep sur React 16
 
 npm run dev          # dev server
 npm run build        # production build
@@ -56,7 +57,13 @@ src/
                                  ImportPort, SyncPort)
   adapters/     ← implémentations (Dexie repo, RNG crypto, clock Date,
                                    export JSON, theme storage)
-  ui/           ← React pages/components, appelle UNIQUEMENT les use cases
+  ui/
+    pages/      ← React pages, appellent UNIQUEMENT les use cases
+    components/ ← composants réutilisables
+    locales/    ← fr-FR/translation.json, en-US/translation.json
+    stores/     ← Zustand (thème)
+  i18n.ts       ← init i18next (inline resources, LanguageDetector)
+  vite-env.d.ts ← types Vite (import.meta.env, __APP_VERSION__)
   shared/       ← types partagés, helpers sans logique métier
 ```
 
@@ -79,8 +86,9 @@ Invariants :
 
 **Modes** : `NARRATIVE | SIMPLIFIED | MORTAL`
 
-**Talents** (enum anglais, labels FR en UI) :
+**Talents** (enum anglais, labels i18n) :
 `INSTINCT | HERBOLOGY | STEALTH | PERSUASION | OBSERVATION | SLEIGHT_OF_HAND | EMPATHY_PRACTICE`
+Note : `Talent.STEALTH` a pour valeur `"DISCRETION"` (clé i18n `talents.DISCRETION`).
 
 **Caractéristiques initiales** :
 
@@ -93,12 +101,14 @@ Invariants :
 - Toucher : `2d6 <= DEX` → succès
 - Dégâts : `1 + 1d6 + bonusArme`
 - Ennemi attaque avec ses propres stats
-- Chance : ajuster un dé après jet (augmenter uniquement), coût = delta, log `luck_spent`
+- Chance : modifier un dé après jet (dans les deux sens), coût = `|delta|`, log `luck_spent`
 
 **Mort** (mode MORTAL, `hpCurrent = 0`) :
 
 - Reset : chapitre=1, `hpCurrent=hpMax`, inventaire/armes/monnaie vidés, chance conservée
 - Log : `death_reset`
+
+**Parties terminées / mortes** : lecture seule dans le dashboard (toutes les actions de mutation sont masquées).
 
 ## Dés virtuels (`react-dice-roll`)
 
@@ -108,28 +118,39 @@ Invariants :
   - **Combat** : bouton explicite "Relancer (en cas de souci)" + disclaimer + log `dice_rerolled` systématique (contexte, valeurs avant/après).
 - Événement `dice_rerolled` : `{ context, diceFaces, valueBefore, valueAfter, reason? }`.
 
+## i18n
+
+Deux locales : `fr-FR` (défaut) et `en-US`. Détection automatique via `localStorage` (`i18nextLng`) puis `navigator`. Switcher dans la page Paramètres.
+
+Les clés sont organisées par feature : `common`, `status`, `timeAgo`, `timeline`, `talents`, `home`, `dashboard`, `createParty`, `combat`, `settings`, `notFound`, `changelog`.
+
+La version de l'app est injectée par Vite via `define: { __APP_VERSION__ }` (lu depuis `package.json`) et déclarée dans `vite-env.d.ts`.
+
 ## Thème
 
 DaisyUI via `data-theme` sur `<html>`. Trois modes : `light`, `dark`, `auto` (suit `prefers-color-scheme`). Persisté en `localStorage` via adapter dédié.
 
+## Déploiement (GitHub Pages)
+
+- `base: "/dagda-companion/"` dans `vite.config.ts`
+- `public/404.html` redirige les routes SPA vers `index.html`
+- `index.html` contient un script qui restaure le chemin redirigé
+- `.github/workflows/deploy.yml` : build → release GitHub (tag `v{version}-{sha}`) → déploiement sur `gh-pages`
+- URL : `https://thomassloboda.github.io/dagda-companion/`
+
 ## Synchro backend future (sans réseau maintenant)
 
-`SyncPort` défini mais non implémenté. Les use cases critiques alimentent une **outbox locale** (`OutboxEvent` avec statut `PENDING`). Voir `docs/architecture.md` pour le flux outbox.
+`SyncPort` défini mais non implémenté. Les use cases critiques alimentent une **outbox locale** (`OutboxEvent` avec statut `PENDING`).
 
 ## Commits (obligatoire)
 
 Format Conventional Commits : `<type>(<scope>): <subject>`
 Types : `feat fix chore docs test refactor build ci perf style`
-Scopes : `pwa ui domain storage combat sync theme docs`
-Commits atomiques par tâche (T1..T14).
-
-## Docs
-
-- `docs/architecture.md` : diagrammes Mermaid (hexagonal, flux création partie, sauvegarde/restauration, combat + chance + relance dés, outbox/sync future).
-- `CONTRIBUTING.md` : convention de commits + workflow.
+Scopes : `pwa ui domain storage combat sync theme docs config deps`
+Subject **tout en minuscules** (contrainte commitlint `subject-case: lower-case`).
 
 ## UX / accessibilité
 
-- Gros boutons, usage à une main, textes en français.
+- Gros boutons, usage à une main, interface bilingue fr-FR / en-US.
 - Mobile-first, testable offline (SW + cache assets).
 - Sections "Aide / Rappels règles" masquées (DaisyUI collapse) dans le wizard — règles uniquement, jamais de texte narratif du livre.

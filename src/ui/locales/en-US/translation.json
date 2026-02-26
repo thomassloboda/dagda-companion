@@ -259,10 +259,27 @@
     "importDesc": "Load a JSON file exported from another session.",
     "importBtn": "📂 Choose a JSON file",
     "importError": "Import error: {{message}}",
-    "footer": "Dagda – La Saga v0.1.0"
+    "footer": "Dagda – La Saga"
   },
   "notFound": {
     "title": "Page not found",
     "backBtn": "Back to home"
+  },
+  "changelog": {
+    "title": "What's new",
+    "closeBtn": "Close",
+    "v0_1_0": {
+      "label": "v0.1.0 — Initial release",
+      "items": [
+        "Create parties with three modes: Narrative, Simplified, and Mortal",
+        "Full character sheet: hit points, luck, dexterity, and inventory (weapons, items, boulons)",
+        "Turn-based combat system — spend luck to adjust your dice up or down",
+        "Timestamped journal, free notes, and up to three save slots",
+        "Export and import parties as JSON",
+        "Finished or dead parties are view-only",
+        "Available in French and English with automatic language detection",
+        "Installable on your home screen, works offline (PWA)"
+      ]
+    }
   }
 }
