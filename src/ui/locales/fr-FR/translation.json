@@ -266,14 +266,14 @@
     "backBtn": "Retour à l'accueil"
   },
   "changelog": {
-    "title": "Nouveautés",
-    "closeBtn": "Fermer",
     "v0_4_0": {
       "label": "v0.4.0 — Nouveautés",
       "items": [
         "Les dés s'affichent et s'animent désormais correctement dans tous les navigateurs et sur tous les appareils"
       ]
     },
+    "title": "Nouveautés",
+    "closeBtn": "Fermer",
     "v0_3_0": {
       "label": "v0.3.0 — Nouveautés",
       "items": ["Corrections techniques pour assurer la stabilité et la fiabilité de l'application"]

@@ -266,12 +266,12 @@
     "backBtn": "Back to home"
   },
   "changelog": {
-    "title": "What's new",
-    "closeBtn": "Close",
     "v0_4_0": {
       "label": "v0.4.0 — What's new",
       "items": ["Dice now display and animate correctly on all browsers and devices"]
     },
+    "title": "What's new",
+    "closeBtn": "Close",
     "v0_3_0": {
       "label": "v0.3.0 — What's new",
       "items": ["Technical fixes to improve app stability and reliability"]
